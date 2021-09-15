@@ -20,7 +20,6 @@ public abstract class Textbox_Main : Textbox
 
     GameObject curSelectedOption = null;
 
-
     // Start is called before the first frame update
     protected override void Awake()
     {
@@ -40,7 +39,12 @@ public abstract class Textbox_Main : Textbox
         }
     }
 
-   
+    private void OnDisable()
+    {
+        ToggleButtons(false);
+    }
+
+
     protected virtual void Start()
     {
         //1. Disable self
@@ -112,6 +116,7 @@ public abstract class Textbox_Main : Textbox
         EventSystem.current.SetSelectedGameObject(options[0].gameObject, new BaseEventData(EventSystem.current));
         //7. OnDisplayOptions listner
         OnDisplayOptions();
+        Debug.Log("Options ready to display");
         
     }
 

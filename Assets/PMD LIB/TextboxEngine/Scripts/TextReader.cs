@@ -369,8 +369,11 @@ public class TextReader : MonoBehaviour
             else
             {
                 //5a. If this is a main textbox..
-                if (myTextbox != null && myTextbox.GetType() == typeof(Textbox_Main))
+                if (myTextbox != null &&
+                    (myTextbox.GetType().IsSubclassOf(typeof(Textbox_Main)) ||
+                    myTextbox.GetType() == typeof(Textbox_Main)))
                 {
+                    Debug.Log("Preparing to display options");
                     //5a. Display options and wait
                     ((Textbox_Main)myTextbox).DisplayOptions(opts);
                     while (waitForOption) yield return null;
