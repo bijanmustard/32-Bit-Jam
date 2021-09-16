@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,17 +14,25 @@ public abstract class Dialogue : MonoBehaviour
 {
 
     public TextAsset dialogueScript;
+    protected string[] rawLines;
+    public string[] lines => rawLines;
 
     [SerializeField]
     protected abstract string filename { get; }
 
-    private void Awake()
+
+    protected virtual void Awake()
     {
         //1. Load .txt file from filename
         dialogueScript = Resources.Load<TextAsset>(string.Format("Texts/{0}", filename));
+        //2. Get lines from textFile
+        rawLines = dialogueScript.ToString().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
     }
 
-    //Event() calls the specified event and ref to reader that called it. Supports up to 21 events.
+    /// <summary>
+    /// Event() calls the specified event and ref to reader that called it. Supports up to 21 events.
+    /// </summary>
+
     public void Event(int i, TextReader reader)
     {
         // 1. Call event
@@ -122,4 +131,13 @@ public abstract class Dialogue : MonoBehaviour
     protected virtual void DEvent18(TextReader reader) { Debug.Log("DEvent18"); }
     protected virtual void DEvent19(TextReader reader) { Debug.Log("DEvent19"); }
     protected virtual void DEvent20(TextReader reader) { Debug.Log("DEvent20"); }
+
+    /// <summary>
+    /// Event listner for when dialogue starts
+    /// </summary>
+    public abstract void OnDialogueStart();
+    /// <summary>
+    /// Event listener for when dialogue ends.
+    /// </summary>
+    public abstract void OnDialogueEnd();
 }

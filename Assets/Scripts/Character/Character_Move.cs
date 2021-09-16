@@ -29,11 +29,12 @@ public abstract class Character_Move : MonoBehaviour
     public bool useGravity = true;
 
     public bool canMove = true;
+    protected bool lockMove = false;
 
 
     public abstract bool useCameraTransform { get; }
 
-    protected void Awake()
+    protected virtual void Awake()
     {
        
         Application.targetFrameRate = 30; //DSLFKJSDF:LKSJF:LSKJDF:SODLKFJ; REMOVE THIS
@@ -57,9 +58,8 @@ public abstract class Character_Move : MonoBehaviour
     void Update()
     {
         // 1. Get direction input
-
-        if (canMove) moveDir = GetInputDir();
-        else moveDir = Vector3.zero;
+        if (!canMove) moveDir = Vector3.zero;
+        else if (!lockMove) moveDir = GetInputDir();   
 
         //2. Set moveTo
         moveTo = new Vector3(0, 0, 0);
@@ -81,7 +81,7 @@ public abstract class Character_Move : MonoBehaviour
         moveTo.z *= speed * Time.deltaTime;
 
         //5. Check for jump
-        Jump();
+        if(canMove)Jump();
         if (jumpFrame) vertVel = jumpHeight * Time.deltaTime; ;
 
         //6. Set gravity
@@ -115,28 +115,14 @@ public abstract class Character_Move : MonoBehaviour
     }
 
 
-    //Late update
-    //protected void OnTriggerExit()
-    //{
-    //    isGrounded = false;
-    //}
-
-    //protected void OnTriggerStay(Collider other)
-    //{
-    //    if (!jumpFrame)
-    //    {
-    //        Debug.Log("isGrounded");
-    //        isGrounded = true;
-    //    }
-    //}
-
-    //protected void OnCollisionStay(Collision collision)
-    //{
-        
-    //    for(int cp = 0; cp < collision.contactCount; cp++)
-    //    {
-    //        ContactPoint contact = collision.GetContact(cp);
-    //        if ((charCont.collisionFlags & CollisionFlags.Below) != 0) isGrounded = true;
-    //    }
-    //}
+    /// <summary>
+    ///Called to lock/unlock move direcion.
+    /// </summary>
+    /// <param name="tog"></param>
+    public void LockDir(bool tog) {lockMove = tog;}
+    /// <summary>
+    /// Toggles whether or not the player can move via controller input. Gravity still runs.
+    /// </summary>
+    /// <param name="tog"></param>
+    public void ToggleMove(bool tog) {canMove = tog;}
 }

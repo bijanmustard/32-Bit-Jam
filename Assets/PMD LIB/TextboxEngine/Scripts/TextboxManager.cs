@@ -63,7 +63,6 @@ public class TextboxManager : MonoBehaviour
         }
     }
 
-
     //ToggleTextbox is called to enable/disable a specified textbox.
     public static void ToggleTextbox(bool tog, string box)
     {
@@ -76,7 +75,7 @@ public class TextboxManager : MonoBehaviour
             // 3. Toggle Textbox
             if (tog)
             {
-                Debug.Log("Setting " + value.name + " to active");
+                //Debug.Log("Setting " + value.name + " to active");
                 value.gameObject.SetActive(true);
             }
             else value.ToggleTextbox(tog);
@@ -87,12 +86,20 @@ public class TextboxManager : MonoBehaviour
 
 
     // StartDialogue is called by an NPC to trigger a dialogue in the main textbox.
-    public static void StartDialogue(Dialogue myDia)
+    public static void StartDialogue(Dialogue myDia, int startLine = 0)
     {
         //1. Initialize
         ToggleTextbox(true, mainReader.name);
-        mainTextbox.StartTextbox(ref myDia);
+        mainTextbox.StartTextbox(ref myDia, startLine);
     }
+
+    ////Variant which takes in lines manually.
+    //public static void StartDialogue(string[] lines)
+    //{
+    //    //1. Initialize
+    //    ToggleTextbox(true, mainReader.name);
+    //    mainTextbox.StartTextbox(lines);
+    //}
 
 
   

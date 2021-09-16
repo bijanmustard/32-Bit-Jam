@@ -8,7 +8,7 @@ using UnityEngine;
  * Action script for player.
  */
 
-public class Player_Action : MonoBehaviour
+public class Player_Action : Fighter_Action
 {
     Player_Move pMove;
     Animator anim;
@@ -19,11 +19,19 @@ public class Player_Action : MonoBehaviour
 
     public bool isGuard = false;
 
+    Hitbox lHand;
+    Collider lHand_col;
+
 
     private void Awake()
     {
         pMove = GetComponent<Player_Move>();
         anim = GetComponentInChildren<Animator>();
+        lHand = GetComponentInChildren<Hitbox>();
+        lHand_col = lHand.GetComponent<BoxCollider>();
+
+        //lHand_col.enabled = false;
+
     }
 
     //ComboTimer is called after attacking to start/reset the combo timer
@@ -73,6 +81,16 @@ public class Player_Action : MonoBehaviour
                     }
                 }
             }
+
+        }
+
+        //If there are contacts, do stuff
+        if (lHand.IsContact)
+        {
+            foreach(KeyValuePair<GameObject,Vector3> kvp in lHand.contacts)
+            {
+                
+            }
         }
 
         //If timer runs out, cancel attack.
@@ -85,7 +103,5 @@ public class Player_Action : MonoBehaviour
             hitCombo = 0;
             anim.SetInteger("Hit_Combo", hitCombo);
         }
-
-      
     }
 }
