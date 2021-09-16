@@ -1,0 +1,8 @@
+You found <$name> ! <&e0>
+You found <$quant> <$name>! <&e0>
+<&x>
+<&nl> ... but you don't have enough inventory space! <&x> 
+---
+It's locked. <&x>
+You used the <$doorkey>. <&nl>
+<&e0> Door unlocked. <&x>

@@ -107,8 +107,20 @@ public abstract class Textbox : MonoBehaviour
             //3. Start Reader IE
             reader.StartReader();
         }
-        
     }
+
+    ////StartTextbox variant where lines are manually passed in.
+    //public void StartTextbox(string[] toRead, int startLine = 0)
+    //{
+    //    //0. If this textbox reader isn't currently running...
+    //    if (!reader.isRunning)
+    //    {
+    //        //1. set reader lines
+    //        reader.SetDialogue(toRead, startLine);
+    //        if (intro != null) anim.Play(intro.name);
+    //        reader.StartReader();
+    //    }
+    //}
 
     //OnBreak is called when breaking. Put any icon animations, etc. in here.
     public void OnBreak(bool enabled)

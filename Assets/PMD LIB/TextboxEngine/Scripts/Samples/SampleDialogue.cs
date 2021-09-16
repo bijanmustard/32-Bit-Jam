@@ -17,6 +17,17 @@ public class SampleDialogue : Dialogue
         
     }
 
+    public override void OnDialogueStart()
+    {
+        Debug.Log("Locking movement");
+        FindObjectOfType<Player>().ToggleInput(false);
+    }
+
+    public override void OnDialogueEnd()
+    {
+        FindObjectOfType<Player>().ToggleInput(true);
+    }
+
 
 
 }

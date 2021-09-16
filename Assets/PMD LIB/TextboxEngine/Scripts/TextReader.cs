@@ -41,6 +41,7 @@ public class TextReader : MonoBehaviour
     protected bool isBreak = false;
     protected bool isExit = false;
     protected bool waitForOption = false;
+    protected bool goToLine = false;
 
     protected string[] lines = new string[0];
     protected int linePointer = 0;
@@ -81,9 +82,9 @@ public class TextReader : MonoBehaviour
         //1. Set dialogue
         curDialogue = cur;
         //2. Initialize text asset
-        lines = curDialogue.dialogueScript.ToString().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+        lines = cur.lines;
         //3. Set starting line
-        linePointer = startLine;
+        linePointer = Mathf.Clamp(startLine - 1, 0, lines.Length-1) ;
     }
 
     //StartReader starts the reader IE.
@@ -162,7 +163,7 @@ public class TextReader : MonoBehaviour
         {
             //1a. Parse word into char array to check tag
             char[] chars = myWord.ToCharArray();
-
+            //Debug.Log("Cheking metatag " + myWord);
             //2. (Sub)Title Update
             if (chars[2] == 't')
             {
@@ -186,8 +187,8 @@ public class TextReader : MonoBehaviour
                 //2b. If subtitle tag, update subtitle
                 else if (chars[3] == 's')
                 {
-                   //If subtitle box is present..
-                   if(texts[1] != null)
+                    //If subtitle box is present..
+                    if (texts[1] != null)
                     {
                         //2b.a. Extract subtitle form line
                         string mySub = myWord;
@@ -226,12 +227,12 @@ public class TextReader : MonoBehaviour
             }
 
             //6. Force exit
-            else if (chars[2] == 'x') isExit = true;
+            else if (chars[2] == 'x') { isExit = true; }
 
             //7. New Line
             else if (chars[2] == 'n')
             {
-                if(chars[3] == 'l')
+                if (chars[3] == 'l')
                 {
                     //7a. Add new line to texts
                     texts[2].text += "\n";
@@ -262,7 +263,12 @@ public class TextReader : MonoBehaviour
     public void SetLine(int line)
     {
         // 1. clamp new linepointer val to ensure it doesn't surpass total lines
-        if (line > 0) linePointer = Mathf.Clamp(line - 1, 0, lines.Length);
+        if (line > 0)
+        {
+            goToLine = true;
+            linePointer = Mathf.Clamp(line - 1, 0, lines.Length);
+        }
+        
     }
 
     // SetExitEvent sets a delgate function to be called upon exiting the dialogue event.
@@ -272,7 +278,7 @@ public class TextReader : MonoBehaviour
     }
 
     // EndOption is called in Dialogue to end the optionWait bool
-    public void EndOptionWait() { waitForOption = false; Debug.Log("options done"); }
+    public void EndOptionWait() { waitForOption = false; }
 
     /* ----------------------------------------
      * Text Reader IE & Exit Func
@@ -285,6 +291,9 @@ public class TextReader : MonoBehaviour
         isExit = false;
         bool endDialogue = false;
         //if (charSound != null) GetComponent<AudioSource>().clip = charSound;
+
+        //1. Call dialogues start event
+        curDialogue.OnDialogueStart();
 
         //2. If there is a textbox attached to this...
         if (myTextbox != null)
@@ -406,10 +415,11 @@ public class TextReader : MonoBehaviour
                 }
             }
 
-            // 7. Increment line pointer
-            linePointer++;
+            // 7. Increment line pointer if new pointer hasn't already been set
+            if (!goToLine) linePointer++;
+            else goToLine = false;
             // 7a. If linePointer is larger than lines length, end dialogue.
-            if (linePointer >= lines.Length) endDialogue = true;
+            if (linePointer >= lines.Length || isExit) endDialogue = true;
 
         }
         // 8. At end of dialogue, enable break
@@ -443,15 +453,19 @@ public class TextReader : MonoBehaviour
         isRunning = false;
         runIE = null;
         //2. if exit event exits, call exit event
-        if (exitEvent != null)
+        //if (exitEvent != null)
+        if(curDialogue != null)
         {
-            exitEvent.Invoke();
+
+            curDialogue.OnDialogueEnd();
+            //exitEvent.Invoke();
             exitEvent = null;
         }
 
         //3. Reset vars
         ResetAll();
-        //4. Close box.
+        
+        //5. Close box.
         myTextbox.ToggleTextbox(false);
     }
 }
