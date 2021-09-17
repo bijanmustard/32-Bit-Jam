@@ -16,11 +16,24 @@ public class SceneController : MonoBehaviour
     private static SceneController instance;
     static Coroutine curRoutine;
 
+    public static string[] scenes;
+
 
     private void Awake()
     {
         if (instance != null && instance != this) Destroy(this);
         else { instance = this; }
+
+        // 2. Set scene array
+        scenes = new string[SceneManager.sceneCountInBuildSettings];
+        Debug.Log($"Scenes: {scenes.Length}");
+        for (int i = 0; i < scenes.Length; i++)
+        {
+            
+            string path = SceneUtility.GetScenePathByBuildIndex(i);
+            scenes[i] = System.IO.Path.GetFileNameWithoutExtension(path);
+            Debug.Log(scenes[i]);
+        }
     }
 
     // GoToScene() is called to go to a specified scene.
@@ -33,7 +46,6 @@ public class SceneController : MonoBehaviour
 
         }
         //2.Reset transitioning bool
-        //TransitionManager.SetTransitioning(false);
         curRoutine = instance.StartCoroutine(GoToIE(idx));
     }
 
@@ -71,15 +83,14 @@ public class SceneController : MonoBehaviour
         SceneManager.LoadScene(idx);
         //4. TransitionIn
         TransitionManager.TransitionIn();
-        //5.Unlock player movement
-        //if (move != null) move.LockMovement(false);
+        //5. Wait for transIn before unlocking player moveDir
+        while (TransitionManager.isTrans) yield return null;
+        Player.Current.move.LockDir(false);
     }
 
     //GoToIE() is the IE for GoToScene.
     static IEnumerator GoToIE(string str)
     {
-        //Player_Movement move = FindObjectOfType<Player_Movement>();
-        //if (move != null) move.LockMovement(true);
 
         //1. start out transition
         TransitionManager.TransitionOut(0, 1);
@@ -91,7 +102,11 @@ public class SceneController : MonoBehaviour
         SceneManager.LoadScene(str);
         //4. TransitionIn
         TransitionManager.TransitionIn();
-        //if (move != null) move.LockMovement(false);
+        //5. Wait for transIn before unlocking player moveDir
+        while (TransitionManager.isTrans) yield return null;
+        Player.Current.move.LockDir(false);
+
+
     }
 
 }

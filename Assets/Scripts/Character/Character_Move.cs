@@ -13,26 +13,34 @@ public abstract class Character_Move : MonoBehaviour
     //Vars & Refs
     protected Collider col;
     protected CharacterController charCont;
+    protected Animator anim;
 
     protected float h, v;
     protected float vertVel;
-    protected Vector3 moveDir, moveVel, moveTo;
+    public Vector3 moveDir, moveVel;
 
-    public float speed = 5f;
+    protected float? speed = null;
+    public float moveSpeed = 5f;
     public float gravity = 3f;
     public float jumpHeight = 5f;
     public float rotateSpeed = 7f;
 
     public bool isGrounded => charCont.isGrounded;
+
+    /// <summary> Trigger bool for jump./// </summary>
+    protected bool isJump;
+    /// <summary> Is True while waiting for jump to process. /// </summary>
     protected bool jumpFrame = false;
     public bool isJumping => jumpFrame;
-    public bool useGravity = true;
 
+    public bool useGravity = true;
     public bool canMove = true;
     protected bool lockMove = false;
 
-
-    public abstract bool useCameraTransform { get; }
+    public bool restrictX, restrictY, restrictZ;
+    public bool rotToDir = true;
+    [SerializeField]
+    protected bool useCameraTransform = false;
 
     protected virtual void Awake()
     {
@@ -40,89 +48,154 @@ public abstract class Character_Move : MonoBehaviour
         Application.targetFrameRate = 30; //DSLFKJSDF:LKSJF:LSKJDF:SODLKFJ; REMOVE THIS
         col = GetComponent<BoxCollider>();
         charCont = GetComponent<CharacterController>();
+        anim = GetComponentInChildren<Animator>();
+
+        if (speed == null) speed = moveSpeed; 
     }
-
-
 
     /// <summary>
     /// Returns a Vector3 from the current move axis input.
     /// </summary>
-    protected abstract Vector3 GetInputDir();
-
-    /// <summary>
-    /// Checks for Jump input and sets velocity accordingly.
-    /// </summary>
-    protected virtual void Jump() { }
-
-    // Update is called once per frame
-    void Update()
+    protected virtual Vector3 GetInputDir()
     {
-        // 1. Get direction input
-        if (!canMove) moveDir = Vector3.zero;
-        else if (!lockMove) moveDir = GetInputDir();   
+        return Vector3.zero;
+    }
 
-        //2. Set moveTo
-        moveTo = new Vector3(0, 0, 0);
+    protected virtual void SetMoveVel()
+    {
+        //1. Set moveVel base
+        moveVel = moveDir;
+        //2. Set x, z speed
+        moveVel.x *= (float)speed; 
+        moveVel.z *= (float)speed; 
+        //3. Set vert vel
+        moveVel.y = vertVel;
+        //4. Multiply by time.deltaTime
+        moveVel *= Time.deltaTime;
+    }
 
-        //3. if cameraTransform is enable, set moveTo relative to camera
-        if (useCameraTransform)
-        {
-            //3a. Get forward based on y rotation of camera based as direction vector
-            Vector3 fwd = Quaternion.Euler(new Vector3(0, Camera.main.transform.eulerAngles.y, 0)) * Vector3.forward;
-            //3b. forward relative to camera
-            moveTo += moveDir.z * fwd;
-            //3c. horizontal relative to camera
-            moveTo += moveDir.x * Camera.main.transform.right;
-        }
-        else moveTo = moveDir;
+    ///<summary>Called to check for jump input and call jump funciton. Returns true if jump confirmed.</summary>
+    protected virtual bool Jump() { return false; }
+ 
 
-        //4. Apply speed to moveTo
-        moveTo.x *= speed * Time.deltaTime;
-        moveTo.z *= speed * Time.deltaTime;
-
-        //5. Check for jump
-        if(canMove)Jump();
-        if (jumpFrame) vertVel = jumpHeight * Time.deltaTime; ;
-
-        //6. Set gravity
+    /// <summary> Applys gravity to vertVel. </summary>
+    protected virtual void Gravity()
+    {
+        ////1. If gravity is enabled..
         if (useGravity)
         {
-            //6a. If not jump frame..
+            //1a. If not jump frame..
             if (!jumpFrame)
             {
-                //6b. If is grounded, apply grounded vel; else gravity
+                //2.If is grounded, apply grounded vel; else gravity
                 if (charCont.isGrounded) vertVel = -1;
                 else vertVel -= gravity * Time.deltaTime;
             }
         }
+    }
 
-        moveTo.y = vertVel;
+    
 
-        //5. if moveDir != 0, rotate towards moveDir
-        if (moveDir != Vector3.zero)
-        {
-            transform.rotation = Quaternion.Lerp(transform.rotation,
-                Quaternion.LookRotation(new Vector3(moveTo.x, 0, moveTo.z), transform.up), rotateSpeed * Time.deltaTime);   
-        }
-        //var norm = Quaternion.FromToRotation(transform.up, normal);
-        //transform.rotation = norm * transform.rotation;
+    // Update is called once per frame
+    protected void Update()
+    {
+        //1. Get Input Direction
+        if (!lockMove) moveDir = (canMove ? GetInputDir() : Vector3.zero);
+        
+        //1a. Constrain moveDir
+        Restrict(ref moveDir);
+        //1b. If transform by camera, transform moveDir by camera
+        if (useCameraTransform) moveDir = CameraTransformDir(moveDir);
 
-        //5. MovePosition
+        //2. Check for jump
+        jumpFrame = Jump();
+        if (jumpFrame) vertVel = jumpHeight;
 
-        if (charCont != null) charCont.Move(moveTo);
-        // Reset jump frame
+        //3. Set gravity
+        Gravity();
+
+        //4. Set moveTo velocity
+        SetMoveVel();
+
+        //5. If rotToDir enabled, rotate towards moveDir
+        if (rotToDir && moveDir != Vector3.zero)
+            transform.rotation = RotateTo(transform.rotation, new Vector3(moveVel.x, 0, moveVel.z), transform.up, rotateSpeed);
+
+        //6. MovePosition
+        if (charCont != null) charCont.Move(moveVel);
+        //5a. Reset jump frame
         jumpFrame = false;
     }
 
 
-    /// <summary>
-    ///Called to lock/unlock move direcion.
-    /// </summary>
+
+
+
+    /// <summary> Lerps a quaternion to a new forward direction. </summary>
+    /// <param name="curRot"></param>
+    /// <param name="newFwd"></param>
+    /// <param name="newUp"></param>
+    /// <param name="speed"></param>
+    /// <returns></returns>
+    public static Quaternion RotateTo(Quaternion curRot, Vector3 newFwd, Vector3 newUp, float speed)
+    {
+        //5. if moveDir != 0, rotate towards moveDir
+        
+            return Quaternion.Lerp(curRot, Quaternion.LookRotation(newFwd, newUp), speed * Time.deltaTime);
+
+        //var norm = Quaternion.FromToRotation(transform.up, normal);
+        //transform.rotation = norm * transform.rotation;
+    }
+    /// <summary> Transforms a direction relative to the main camera, ignoring X-rotation.</summary>
+    /// <param name="dir"></param> <returns></returns>
+    public static Vector3 CameraTransformDir(Vector3 dir)
+    {
+        Vector3 camDir = Vector3.zero;
+        //3a. Get forward based on y rotation of camera based as direction vector
+        Vector3 fwd = Quaternion.Euler(new Vector3(0, Camera.main.transform.eulerAngles.y, 0)) * Vector3.forward;
+        //3b. forward relative to camera
+        camDir += dir.z * fwd;
+        //3c. horizontal relative to camera
+        camDir += dir.x * Camera.main.transform.right;
+        return camDir;
+    }
+
+    /// <summary> Constrains an input vector by the Character_Move's axis constraints.</summary>
+    /// <param name="input"></param>
+    protected void Restrict(ref Vector3 input)
+    {
+        //1d. Restrict moveDir movement
+        if (restrictX) input.x = 0;
+        if (restrictY) input.y = 0;
+        if (restrictZ) input.z = 0;
+    }
+
+    /// <summary> Called to lock/unlock move direcion.</summary>
     /// <param name="tog"></param>
     public void LockDir(bool tog) {lockMove = tog;}
-    /// <summary>
-    /// Toggles whether or not the player can move via controller input. Gravity still runs.
-    /// </summary>
+
+    /// <summary>Toggles whether or not the player can move via controller input. Gravity still runs. </summary>
     /// <param name="tog"></param>
-    public void ToggleMove(bool tog) {canMove = tog;}
+    public void ToggleMoveDir(bool tog) {canMove = tog;}
+
+    /// <summary> Toggles restraint on X-Axis movement. </summary>
+    /// <param name="tog"></param>
+    public void RestrictX(bool tog) { restrictX = tog; }
+
+    /// <summary> Toggles restraint on Y-Axis movement. </summary>
+    /// <param name="tog"></param>
+    public void RestrictY(bool tog) { restrictY = tog; }
+
+    /// <summary> Toggles restraint on Z-Axis movement. </summary>
+    /// <param name="tog"></param>
+    public void RestrictZ(bool tog) { restrictZ = tog; }
+
+    /// <summary> Toggles restraint on all axis movement. </summary>
+    /// <param name="tog"></param>
+    public void ResetrictAll(bool tog)
+    {
+        RestrictX(tog);
+        RestrictY(tog);
+        RestrictZ(tog);
+    }
 }

@@ -12,7 +12,6 @@ using UnityEngine;
 public class Enemy_Action : Fighter_Action
 {
     Enemy_Move eMove;
-    Animator anim;
 
     float attackDist = 2f;
     bool isAttack;
@@ -26,45 +25,43 @@ public class Enemy_Action : Fighter_Action
     protected override void Awake()
     {
         base.Awake();
-        eMove = GetComponent<Enemy_Move>();
-        anim = GetComponentInChildren<Animator>();
-
-       
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        eMove = GetComponent<Enemy_Move>(); 
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
-        if(eMove.distFromPlayer <= attackDist)
+        base.Update();
+        if (!eMove.isKB && !isStun)
         {
-            if (!isAttack)
+            if (eMove.distToPlayer <= attackDist)
             {
-                Attack();
+                Debug.Log($"DIST: {eMove.distToPlayer}");
+                if (!isAttack)
+                {
+                    Attack();
+                }
             }
-        }
 
-        // 2. If is attacking, update timer
-        if (isAttack)
-        {
-            attackCooldown_timer += Time.deltaTime;
-            //2a. if timer reaches limit, stop attack seq
-            if(attackCooldown_timer >= attackCooldown)
+            // 2. If is attacking, update timer
+            if (isAttack)
             {
-                EndAttack();
+                attackCooldown_timer += Time.deltaTime;
+                //2a. if timer reaches limit, stop attack seq
+                if (attackCooldown_timer >= attackCooldown)
+                {
+                    EndAttack();
+                }
             }
         }
+        
     }
 
     //Attack is called to launch an attack.
     public void Attack()
     {
         curMethod = AttackHit;
+        onInterrupt = EndAttack;
         //0. Set curAction
         curAction = "Attack";
         //1. Set isAttack to true
@@ -93,6 +90,7 @@ public class Enemy_Action : Fighter_Action
         attackCt = 0;
         //4. re-enable movement
         eMove.canMove = true;
+        
         //5. Set anim state
         Debug.Log(name + " is attacking no more...");
         anim.SetInteger("Hit_Combo", attackCt);
@@ -101,6 +99,7 @@ public class Enemy_Action : Fighter_Action
     // HIT FUNCS
     public void AttackHit(Fighter f)
     {
-        Debug.Log("Attack landed!");
+        f.GetComponent<Fighter_Action>().Knockback(3, 2, (f.gameObject.transform.position - transform.position).normalized);
+        f.UpdateHP(-2);
     }
 }
