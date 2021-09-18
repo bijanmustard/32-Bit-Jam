@@ -8,26 +8,26 @@ using UnityEngine;
  * Script for player movement.
  */
 
-public class Player_Move : Character_Move
+public class Player_Move : Fighter_Move
 {
-    public override bool useCameraTransform => true;
-
-  
 
     protected override Vector3 GetInputDir()
     {
-        h = Input.GetAxisRaw("Horizontal");
-        v = Input.GetAxisRaw("Vertical");
-        return new Vector3(h, 0, v);
+        if (!isKB && !isStun)
+        {
+            h = Input.GetAxisRaw("Horizontal");
+            v = Input.GetAxisRaw("Vertical");
+            return new Vector3(h, 0, v);
+        }
+        else return kbDir;
     }
 
-    protected override void Jump()
+
+    protected override bool Jump()
     {
         //1. Check for jump input
         if (Input.GetKeyDown(KeyCode.Space) && charCont.isGrounded && !jumpFrame)
-        {
-            Debug.Log("Jump");
-            jumpFrame = true;
-        }
+            return true;
+        else return false;
     }
 }

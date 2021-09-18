@@ -12,6 +12,17 @@ using UnityEngine;
 [RequireComponent(typeof(Player_Action))]
 public class Player : Fighter
 {
+    private static Player current;
+    public static Player Current => current;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        if (current != null && current != this) Destroy(gameObject);
+        else current = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     public Player_Move pMove => (Player_Move)_move;
     public Player_Action pAction => GetComponent<Player_Action>();
 

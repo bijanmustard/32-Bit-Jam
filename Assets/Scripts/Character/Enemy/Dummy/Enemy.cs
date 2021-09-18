@@ -13,4 +13,10 @@ public class Enemy : Fighter
 {
     public Enemy_Move move => (Enemy_Move)_move;
     public Enemy_Action action => (Enemy_Action)_action;
+
+    public override void Die()
+    {
+        base.Die();
+        Destroy(gameObject);
+    }
 }

@@ -25,7 +25,7 @@ using UnityEngine.UI;
 public class TextboxManager : MonoBehaviour
 {
     //Static ref to current instance in scene
-    private static TextboxManager instance;
+    public static TextboxManager instance;
 
     //Current dialogue vars
     public static Dialogue curDialogue;
@@ -93,16 +93,7 @@ public class TextboxManager : MonoBehaviour
         mainTextbox.StartTextbox(ref myDia, startLine);
     }
 
-    ////Variant which takes in lines manually.
-    //public static void StartDialogue(string[] lines)
-    //{
-    //    //1. Initialize
-    //    ToggleTextbox(true, mainReader.name);
-    //    mainTextbox.StartTextbox(lines);
-    //}
 
-
-  
 
 
 

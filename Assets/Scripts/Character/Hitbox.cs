@@ -24,19 +24,22 @@ public class Hitbox : MonoBehaviour
 
     protected void OnTriggerEnter(Collider other)
     {
-        //1. If other object meets criteria, add to contacts
-        //1a. If mask contains object's layer..
-        if(myHitController.mask == (myHitController.mask | (1 << other.gameObject.layer)))
+        if (!PauseController.IsPause && !GetComponentInParent<Fighter>().isFreeze)
         {
-            if (other.gameObject.tag != "Hitbox")
+
+            //1. If other object meets criteria, add to contacts
+            //1a. If mask contains object's layer..
+            if (myHitController.mask == (myHitController.mask | (1 << other.gameObject.layer)))
             {
-                contacts.Add(other.gameObject, other.gameObject.transform.position);
-                //2. Call onHit
-                //If hit fighter, call current action value
-                Fighter fAct = other.gameObject.GetComponent<Fighter>();
-                if (fAct != null) myHitController.SignalHit(this, fAct);
-                else myHitController.SignalHit(this,other.gameObject.GetComponent<Hittable>()) ;
-                
+                if (other.gameObject.tag != "Hitbox")
+                {
+                    contacts.Add(other.gameObject, other.gameObject.transform.position);
+                    //2. Call onHit
+                    //If hit fighter, call current action value
+                    Fighter fAct = other.gameObject.GetComponent<Fighter>();
+                    if (fAct != null) myHitController.SignalHit(this, fAct);
+                    else myHitController.SignalHit(this, other.gameObject.GetComponent<Hittable>());
+                }
             }
         }
     }

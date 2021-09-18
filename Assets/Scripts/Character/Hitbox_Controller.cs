@@ -56,7 +56,6 @@ public abstract class Hitbox_Controller : MonoBehaviour
             return;
         }
         //2. Check if function exists in script
-        Debug.Log(this.GetType());
         if (GetType().GetMethod(funcName) == null)
         {
             Debug.Log("Error! Method " + funcName + " not found!");

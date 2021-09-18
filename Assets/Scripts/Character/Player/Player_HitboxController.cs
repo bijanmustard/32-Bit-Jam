@@ -11,14 +11,14 @@ using UnityEngine;
 
 public class Player_HitboxController : Hitbox_Controller
 {
-    Enemy_Action playerAct;
+    Player_Action playerAct;
 
     protected override void Awake()
     {
         base.Awake();
         //1. Get refs
         hitboxes = GetComponentsInChildren<Hitbox>();
-        playerAct = transform.root.GetComponentInChildren<Enemy_Action>();
+        playerAct = transform.root.GetComponentInChildren<Player_Action>();
         //2. Disable hitboxes by default
         ToggleAllHitboxes(0);
 
@@ -36,6 +36,7 @@ public class Player_HitboxController : Hitbox_Controller
 
     public override void SignalHit(Hitbox source, Fighter hit)
     {
+        Debug.Log($"Hitbox {source.name}, hit {hit.name}: notifying {playerAct}");
         playerAct.curMethod.Invoke(hit); 
     }
 
