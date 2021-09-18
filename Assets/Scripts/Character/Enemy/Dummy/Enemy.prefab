@@ -83,6 +83,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28a8e2b64ab3318478d66df86805d9ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitboxes: []
+  mask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &220254773508706905
 GameObject:
   m_ObjectHideFlags: 0
@@ -1534,6 +1538,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d26988725fc57447ac877055100a5c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myHitController: {fileID: 0}
 --- !u!1 &4585083760524973565
 GameObject:
   m_ObjectHideFlags: 0
@@ -1872,11 +1877,11 @@ Rigidbody:
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!143 &5088806632621425156
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1907,12 +1912,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9298811b8b5b8104e80d3ac9d87eeeef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
+  vertVel: 0
+  moveDir: {x: 0, y: 0, z: 0}
+  moveVel: {x: 0, y: 0, z: 0}
+  isVelOverride: 0
+  velOverride: {x: 0, y: 0, z: 0}
+  moveSpeed: 5
   gravity: 3
   jumpHeight: 5
   rotateSpeed: 7
+  freeze: 0
   useGravity: 1
   canMove: 1
+  restrictX: 0
+  restrictY: 0
+  restrictZ: 0
+  rotToDir: 1
+  useCameraTransform: 0
+  isStun: 0
+  isKB: 0
+  kbDir: {x: 0, y: 1, z: 0.5}
+  kbVertVel: 4
+  kbForce: 0
+  distToPlayer: 0
 --- !u!114 &6681157541199941271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1925,6 +1947,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c53b701711188ec4d80f708a66880c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curAction: 
 --- !u!1 &6758728633558676371
 GameObject:
   m_ObjectHideFlags: 0

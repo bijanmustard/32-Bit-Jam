@@ -16,14 +16,19 @@ public abstract class Character_Move : MonoBehaviour
     protected Animator anim;
 
     protected float h, v;
-    protected float vertVel;
+    public float vertVel;
     public Vector3 moveDir, moveVel;
+
+    public bool isVelOverride = false;
+    public Vector3 velOverride = Vector3.zero;
 
     protected float? speed = null;
     public float moveSpeed = 5f;
     public float gravity = 3f;
     public float jumpHeight = 5f;
     public float rotateSpeed = 7f;
+
+    public bool freeze = false;
 
     public bool isGrounded => charCont.isGrounded;
 
@@ -99,32 +104,39 @@ public abstract class Character_Move : MonoBehaviour
     // Update is called once per frame
     protected void Update()
     {
-        //1. Get Input Direction
-        if (!lockMove) moveDir = (canMove ? GetInputDir() : Vector3.zero);
-        
-        //1a. Constrain moveDir
-        Restrict(ref moveDir);
-        //1b. If transform by camera, transform moveDir by camera
-        if (useCameraTransform) moveDir = CameraTransformDir(moveDir);
+        //0. If not freeze and gameScale > 0...
+        if (!GetComponent<Character>().isFreeze  && !PauseController.IsPause && GameController.gameTimeScale > 0)
+        {
 
-        //2. Check for jump
-        jumpFrame = Jump();
-        if (jumpFrame) vertVel = jumpHeight;
+            //1. Get Input Direction
+            if (!lockMove) moveDir = (canMove ? GetInputDir() : Vector3.zero);
 
-        //3. Set gravity
-        Gravity();
+            //1a. Constrain moveDir
+            Restrict(ref moveDir);
+            //1b. If transform by camera, transform moveDir by camera
+            if (useCameraTransform) moveDir = CameraTransformDir(moveDir);
 
-        //4. Set moveTo velocity
-        SetMoveVel();
+            //2. Check for jump
+            jumpFrame = Jump();
+            if (jumpFrame) vertVel = jumpHeight;
 
-        //5. If rotToDir enabled, rotate towards moveDir
-        if (rotToDir && moveDir != Vector3.zero)
-            transform.rotation = RotateTo(transform.rotation, new Vector3(moveVel.x, 0, moveVel.z), transform.up, rotateSpeed);
+            //3. Set gravity
+            Gravity();
 
-        //6. MovePosition
-        if (charCont != null) charCont.Move(moveVel);
-        //5a. Reset jump frame
-        jumpFrame = false;
+            //4. Set moveTo velocity
+            if (isVelOverride) moveVel = velOverride;
+            else SetMoveVel();
+
+            //5. If rotToDir enabled, rotate towards moveDir
+            if (rotToDir && moveDir != Vector3.zero)
+                transform.rotation = RotateTo(transform.rotation, new Vector3(moveVel.x, 0, moveVel.z), transform.up, rotateSpeed);
+
+            //6. MovePosition
+            if (charCont != null) charCont.Move(moveVel);
+            //5a. Reset jump frame
+            jumpFrame = false;
+        }
+        else Debug.Log($"{name} can't move!{!GetComponent<Character>().isFreeze}, {GameController.gameTimeScale > 0}, {!PauseController.IsPause} ");
     }
 
 
@@ -152,11 +164,11 @@ public abstract class Character_Move : MonoBehaviour
     {
         Vector3 camDir = Vector3.zero;
         //3a. Get forward based on y rotation of camera based as direction vector
-        Vector3 fwd = Quaternion.Euler(new Vector3(0, Camera.main.transform.eulerAngles.y, 0)) * Vector3.forward;
+        Vector3 fwd = Quaternion.Euler(new Vector3(0, Camera_Controller.curCamera.transform.eulerAngles.y, 0)) * Vector3.forward;
         //3b. forward relative to camera
         camDir += dir.z * fwd;
         //3c. horizontal relative to camera
-        camDir += dir.x * Camera.main.transform.right;
+        camDir += dir.x * Camera_Controller.curCamera.transform.right;
         return camDir;
     }
 

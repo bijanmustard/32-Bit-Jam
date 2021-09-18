@@ -33,13 +33,14 @@ public class Interactacble_Dialogue : Dialogue
 
     public override void OnDialogueStart()
     {
-       
-        FindObjectOfType<Player>().ToggleInput(false);
+
+        GameController.gameTimeScale = 0;
     }
 
     public override void OnDialogueEnd()
     {
-        FindObjectOfType<Player>().ToggleInput(true);
+        Debug.Log("OnDialogueEnd");
+        GameController.gameTimeScale = 1;
         Destroy(gameObject);
         
     }

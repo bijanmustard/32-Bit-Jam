@@ -11,6 +11,9 @@ using UnityEngine;
 
 public abstract class Fighter_Action : MonoBehaviour
 {
+
+    Fighter fighter;
+
     public string? curAction;
     public delegate void ActionMethod(Fighter f);
     public delegate void ActionInterrupt();
@@ -35,34 +38,46 @@ public abstract class Fighter_Action : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         hbxController = GetComponentInChildren<Hitbox_Controller>();
         fMove = GetComponent<Fighter_Move>();
+        fighter = GetComponent<Fighter>();
     }
 
     protected virtual void Update()
     {
-        //1. If KB, increment KB timer
-        if (fMove.isKB) {
-            knockback_timer += Time.deltaTime;
-            if (knockback_timer >= knockback_dur && fMove.isGrounded)
-            {
-                EndKnockback();
-                Stun(1, 0);
-            }
-            //If still knock back, ignore other actions
-            else return;
-        }
-
-        //2. If stun, increment stun timer
-        if (isStun)
+        //0. If fighter isn't frozen and not paused..
+        if (!fighter.isFreeze && !PauseController.IsPause && GameController.gameTimeScale > 0)
         {
-            stunTimer += Time.deltaTime;
-            //2a. if Stun timer runs out, return to default.
-            if (stunTimer >= stunDur)
+            //1. If KB, increment KB timer
+            if (fMove.isKB)
             {
-                EndStun();
+                knockback_timer += Time.deltaTime;
+                if (knockback_timer >= knockback_dur && fMove.isGrounded)
+                {
+                    EndKnockback();
+                    Stun(1, 0);
+                }
+                //If still knock back, ignore other actions
+                else return;
             }
-            else return;
+
+            //2. If stun, increment stun timer
+            if (isStun)
+            {
+                stunTimer += Time.deltaTime;
+                //2a. if Stun timer runs out, return to default.
+                if (stunTimer >= stunDur)
+                {
+                    EndStun();
+                }
+                else return;
+            }
+
+            //3. Scripts call update
+            MyUpdate();
         }
     }
+
+    //Personalized update for each fighter
+    protected abstract void MyUpdate();
 
     //DealKnockback is called to deal knockback.
     public void Knockback(float force, float vertVel, Vector3 dir)

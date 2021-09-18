@@ -31,9 +31,9 @@ public class Player_Action : Fighter_Action
         comboTimer = 0;
     }
 
-    protected override void Update()
+    protected override void MyUpdate()
     {
-        base.Update();
+
 
         //Guard
         //if (isGuard != Input.GetKey(KeyCode.LeftShift)) anim.SetBool("IsGuard", !isGuard);

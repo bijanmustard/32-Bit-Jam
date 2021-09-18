@@ -56,13 +56,10 @@ public abstract class Textbox : MonoBehaviour
         }
     }
 
-    //Toggle whether this textbox is enabled
+    //Toggle whether this textbox is visually enabled
     public void ToggleTextbox(bool tog)
     {
         // 1. Clear vars before read/close
-        //1a. Stop runIE if running
-        if (reader.runIE != null) StopCoroutine(reader.runIE);
-
         //1c. Disable option buttons
         if(GetType() == typeof(Textbox_Main)) ((Textbox_Main)this).ToggleButtons(false);
         //1d. Reset textbox, text reader vals
@@ -90,7 +87,7 @@ public abstract class Textbox : MonoBehaviour
         while (anim.isPlaying) yield return null;
         //3. When done, finish IE
         animIE = null;
-        if (!tog) gameObject.SetActive(false);
+        //if (!tog) gameObject.SetActive(false);
 
     }
 

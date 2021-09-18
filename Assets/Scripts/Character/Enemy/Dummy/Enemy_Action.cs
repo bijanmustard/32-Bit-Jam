@@ -20,18 +20,17 @@ public class Enemy_Action : Fighter_Action
     float attackCooldown = 2f;
     float attackCooldown_timer;
 
-   
+
 
     protected override void Awake()
     {
         base.Awake();
-        eMove = GetComponent<Enemy_Move>(); 
+        eMove = GetComponent<Enemy_Move>();
     }
 
     // Update is called once per frame
-    protected override void Update()
+    protected override void MyUpdate()
     {
-        base.Update();
         if (!eMove.isKB && !isStun)
         {
             if (eMove.distToPlayer <= attackDist)
@@ -54,7 +53,7 @@ public class Enemy_Action : Fighter_Action
                 }
             }
         }
-        
+
     }
 
     //Attack is called to launch an attack.
@@ -90,7 +89,7 @@ public class Enemy_Action : Fighter_Action
         attackCt = 0;
         //4. re-enable movement
         eMove.canMove = true;
-        
+
         //5. Set anim state
         Debug.Log(name + " is attacking no more...");
         anim.SetInteger("Hit_Combo", attackCt);

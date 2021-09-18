@@ -440,7 +440,18 @@ public class TextReader : MonoBehaviour
             else yield return null;
         }
         //9. Clear and close box.
-        if (myTextbox != null) OnTextboxExit();
+        if (myTextbox != null) myTextbox.ToggleTextbox(false);
+        //10. Wait for textbox to close before calling OnTextboxExit
+        yield return null;
+        if (myTextbox != null)
+        {
+            while (myTextbox.IsAnimation())
+            {
+                Debug.Log("Waiting for textbox anim...");
+                yield return null;
+            }
+        }
+        OnTextboxExit();
     }
 
 
@@ -464,9 +475,10 @@ public class TextReader : MonoBehaviour
 
         //3. Reset vars
         ResetAll();
-        
-        //5. Close box.
-        myTextbox.ToggleTextbox(false);
+
+        //4. Disable textbox
+        GetComponentInParent<Textbox>().gameObject.SetActive(false);
+
     }
 }
 
