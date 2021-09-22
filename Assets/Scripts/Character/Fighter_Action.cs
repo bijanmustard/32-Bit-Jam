@@ -23,10 +23,12 @@ public abstract class Fighter_Action : MonoBehaviour
 
     Fighter_Move fMove;
     protected bool isStun;
+    protected bool isAttack;
     float stunTimer = 0;
     float stunDur = 0;
     float knockback_dur = 0.75f;
     float knockback_timer = 0;
+    
 
     /// <summary> Dictionary mapping action strings to their on hit functions. /// </summary>
     public Dictionary<string, Action> hitMap= new Dictionary<string, Action>();
@@ -73,11 +75,25 @@ public abstract class Fighter_Action : MonoBehaviour
 
             //3. Scripts call update
             MyUpdate();
+
+            //4. Update animator
+            UpdateAnimation();
         }
     }
 
     //Personalized update for each fighter
     protected abstract void MyUpdate();
+
+    protected virtual void UpdateAnimation()
+    {
+        // 1. Set knockback;
+        anim.SetBool("IsKnockback", fMove.isKB);
+        //2. Set stunned
+        anim.SetBool("Stunned", isStun);
+        // 3. Set isAttack
+        anim.SetBool("IsAttack", isAttack);
+
+    }
 
     //DealKnockback is called to deal knockback.
     public void Knockback(float force, float vertVel, Vector3 dir)
@@ -93,7 +109,6 @@ public abstract class Fighter_Action : MonoBehaviour
         fMove.kbForce = force;
         fMove.rotToDir = false;
         //2. Set anim state
-        anim.SetBool("IsKnockback", true);
         anim.SetTrigger("Knockback");
     }
 
@@ -107,7 +122,7 @@ public abstract class Fighter_Action : MonoBehaviour
         knockback_timer = 0;
         fMove.isKB = false;
         fMove.rotToDir = true;
-        anim.SetBool("IsKnockback", false);
+        //anim.SetBool("IsKnockback", false);
        
         
     }
@@ -124,8 +139,7 @@ public abstract class Fighter_Action : MonoBehaviour
         stunTimer = 0;
         isStun = true;
         //2. Set anim
-        anim.SetBool("Stunned", true);
-        anim.SetInteger("StunType", stunAnim);
+        isStun = true;
     }
 
     public void EndStun()
@@ -140,8 +154,15 @@ public abstract class Fighter_Action : MonoBehaviour
         isStun = false;
 
         //2. SetAnim
-        anim.SetBool("Stunned", false);
+        //anim.SetBool("Stunned", false);
         
+    }
+
+    //Checks to see if animator is finished playing current animation.
+    public bool IsAnimationFinished()
+    {
+        if (anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !anim.IsInTransition(0)) return true;
+        else return false;
     }
 
 }

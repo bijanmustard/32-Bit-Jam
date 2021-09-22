@@ -11,12 +11,16 @@ using UnityEngine;
 public class Player_Action : Fighter_Action
 {
     Player_Move pMove;
-    public bool isAttack = false;
+
+    Coroutine comboIE;
     int hitCombo = 0;
     float comboTimer = 0;
-    float comboSpan = 0.25f;
+    float comboSpan = 0.15f;
+    float normalizedTimerStart = 2f;
+    public bool canChain = false;
 
     public bool isGuard = false;
+    public bool isCrouch = false;
 
 
     protected override void Awake()
@@ -31,50 +35,120 @@ public class Player_Action : Fighter_Action
         comboTimer = 0;
     }
 
+    //IE for hit combo
+    IEnumerator AttackComboIE()
+    {
+        Attack();
+        //1. While is attacking...
+        while (isAttack)
+        {
+            yield return null;
+            //2. Once animation is finished, increment combo timer
+            if ((!IsAnimationFinished() && anim.GetCurrentAnimatorStateInfo(0).normalizedTime > normalizedTimerStart && hitCombo <=2)
+                || IsAnimationFinished())
+            {
+                //2a. Set canChain bool
+                if (!canChain)
+                {
+                    Debug.Log($"Re-Enabling canChain at normalized {anim.GetCurrentAnimatorStateInfo(0).normalizedTime}." +
+                        $"Was animation finished? {IsAnimationFinished()}");
+                    canChain = true;
+                }
+                if (canChain)
+                {
+                    comboTimer += Time.deltaTime;
+                }
+
+                //3. If combo timer ends, end attack
+                if (comboTimer >= comboSpan && IsAnimationFinished())
+                {
+                    Debug.Log($"Chain timer ended at time {comboTimer}");
+                    EndAttack();
+                    Debug.Log("Attack End");
+                }
+            }
+        }
+    }
+
+    //IE for normal attacks (e.g. crouch)
+    IEnumerator AttackIE()
+    {
+        while (isAttack)
+        {
+            yield return null;
+            Debug.Log($"Waiting for {curAction} to finish...");
+            if (!IsAnimationFinished()) yield return null;
+            else EndAttack();
+
+        }
+    }
+
     protected override void MyUpdate()
     {
 
 
-        //Guard
-        //if (isGuard != Input.GetKey(KeyCode.LeftShift)) anim.SetBool("IsGuard", !isGuard);
-        //isGuard = Input.GetKey(KeyCode.LeftShift);
-        //if (isGuard) pMove.canMove = false;
-        //else pMove.canMove = true;
-
-
-        //0. If is attacking, run combo timer
-        if (isAttack) comboTimer += Time.deltaTime;
-
-        // 1. If punch button is pressed...
-        if (Input.GetKeyDown(KeyCode.F))
+        //If not guarding or airborne..
+        if (!isGuard && !pMove.isJumping && pMove.isGrounded)
         {
-            //If not guarding or airborne..
-            if (!isGuard && !pMove.isJumping && pMove.isGrounded)
+            // 1. If punch button is pressed...
+            if (Input.GetKeyDown(KeyCode.F))
             {
+
                 //2. If not punching, initiate punch
                 if (!isAttack)
                 {
-                    Debug.Log("One punch!");
-                    Attack();
+                    //2a. If not crouching, punch attack
+                    if (!isCrouch)
+                    {
+                        Debug.Log("One punch!");
+                        comboIE = StartCoroutine(AttackComboIE());
+
+                    }
+                    //2b. Else if crouching, crouch attack
+                    else
+                    {
+                        //2b.a. End routine
+                        CrouchAttack();
+                        comboIE = StartCoroutine(AttackIE());
+                    }
+
                 }
-                //3. If punching and on first punch, trigger second punch
+                //3. Else if already attacking..
                 else
                 {
-                    if (hitCombo == 1)
+                    // 3a. If player hasn't reached max attack move and is within chain input window, trigger attack
+                    if (canChain && hitCombo < 3)
                     {
                         Debug.Log("Two punch!");
                         Attack();
+                        
                     }
                 }
+
             }
 
-        }
-        //If timer runs out, cancel attack.
-        if(isAttack && comboTimer >= comboSpan)
-        {
-            EndAttack();
+            // 4. If crouch button is pressed...
+            if (Input.GetKey(KeyCode.C))
+            {
+                // 4a. If Crouch conditions are met...
+                if ((!pMove.IsMoving || pMove.IsWalking))
+                {
+                    // 4b. If not attacking and not crouched yet, enable crouch
+                    if ((!isAttack && !isCrouch) || isCrouch) isCrouch = true;
+                }
+            }
+            else isCrouch = false;
+
         }
     }
+
+    protected override void UpdateAnimation()
+    {
+        base.UpdateAnimation();
+        anim.SetBool("IsCrouch", isCrouch);
+
+    }
+
     //Attack is called to launch an attack.
     public void Attack()
     {
@@ -86,13 +160,23 @@ public class Player_Action : Fighter_Action
         isAttack = true;
         //2. Reset attack timer
         comboTimer = 0;
+        canChain = false;
         //3. Increase attackCombo
         hitCombo++;
         //4. LockMovement
         pMove.canMove = false;
         //5. Play anim
-        Debug.Log(name + " attacking!");
         anim.SetInteger("Hit_Combo", hitCombo);
+    }
+
+    public void CrouchAttack()
+    {
+        curMethod = AttackHit;
+        onInterrupt = EndAttack;
+        curAction = "CrouchAttack";
+        isAttack = true;
+
+
     }
 
     //EndAttack is called to end the attack sequence.
@@ -102,6 +186,7 @@ public class Player_Action : Fighter_Action
         curAction = "Idle";
         //1. set isAttack to false.
         isAttack = false;
+        canChain = false;
         //2. reset timer
         comboTimer = 0;
         //3. reset attackCombo
@@ -109,8 +194,12 @@ public class Player_Action : Fighter_Action
         //4. re-enable movement
         pMove.canMove = true;
         //5. Set anim state
-        Debug.Log(name + " is attacking no more...");
         anim.SetInteger("Hit_Combo", hitCombo);
+        //6. unToggle isAttack
+        isAttack = false;
+        //7. Stop IE
+        StopCoroutine(comboIE);
+
     }
 
     // HIT FUNCS

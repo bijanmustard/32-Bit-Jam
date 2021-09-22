@@ -10,16 +10,26 @@ using UnityEngine;
 
 public class Player_Move : Fighter_Move
 {
+    Player_Action pAction;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        //1. Set ref to pAction
+        pAction = GetComponent<Player_Action>();
+    }
 
     protected override Vector3 GetInputDir()
     {
-        if (!isKB && !isStun)
+        if (!isKB && !isStun && !pAction.isCrouch)
         {
             h = Input.GetAxisRaw("Horizontal");
             v = Input.GetAxisRaw("Vertical");
             return new Vector3(h, 0, v);
         }
-        else return kbDir;
+        else if (isKB && !isStun) return kbDir;
+        else if (pAction.isCrouch) return Vector3.zero;
+        else return Vector3.zero;
     }
 
 
