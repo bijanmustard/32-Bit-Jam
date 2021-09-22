@@ -31,9 +31,7 @@ public abstract class Character_Move : MonoBehaviour
     public bool freeze = false;
 
     public bool isGrounded => charCont.isGrounded;
-
-    /// <summary> Trigger bool for jump./// </summary>
-    protected bool isJump;
+    
     /// <summary> Is True while waiting for jump to process. /// </summary>
     protected bool jumpFrame = false;
     public bool isJumping => jumpFrame;
@@ -46,6 +44,13 @@ public abstract class Character_Move : MonoBehaviour
     public bool rotToDir = true;
     [SerializeField]
     protected bool useCameraTransform = false;
+
+    //State bools
+    public bool IsJump => jumpFrame;
+    public bool IsMoving => (h != 0 && v != 0);
+    public bool IsWalking => ((Mathf.Abs(h) > 0 && Mathf.Abs(h) <= 0.5f && Mathf.Abs(v) <= 0.5f)
+        || (Mathf.Abs(v) > 0 && Mathf.Abs(v) <= 0.5f && Mathf.Abs(h) <= 0.5f));
+    public bool IsRunning => (Mathf.Abs(h) > 0.5f || Mathf.Abs(v) > 0.5f);         
 
     protected virtual void Awake()
     {
@@ -108,6 +113,8 @@ public abstract class Character_Move : MonoBehaviour
         if (!GetComponent<Character>().isFreeze  && !PauseController.IsPause && GameController.gameTimeScale > 0)
         {
 
+ 
+
             //1. Get Input Direction
             if (!lockMove) moveDir = (canMove ? GetInputDir() : Vector3.zero);
 
@@ -133,6 +140,10 @@ public abstract class Character_Move : MonoBehaviour
 
             //6. MovePosition
             if (charCont != null) charCont.Move(moveVel);
+
+            //7. Update Animation
+            UpdateAnimation();
+
             //5a. Reset jump frame
             jumpFrame = false;
         }
@@ -162,6 +173,7 @@ public abstract class Character_Move : MonoBehaviour
     /// <param name="dir"></param> <returns></returns>
     public static Vector3 CameraTransformDir(Vector3 dir)
     {
+        Debug.Log("Using camTransformDir");
         Vector3 camDir = Vector3.zero;
         //3a. Get forward based on y rotation of camera based as direction vector
         Vector3 fwd = Quaternion.Euler(new Vector3(0, Camera_Controller.curCamera.transform.eulerAngles.y, 0)) * Vector3.forward;
@@ -209,5 +221,22 @@ public abstract class Character_Move : MonoBehaviour
         RestrictX(tog);
         RestrictY(tog);
         RestrictZ(tog);
+    }
+
+    protected virtual void UpdateAnimation()
+    {
+        // 1. Update move speed
+        var absH = Mathf.Abs(h);
+        var absV = Mathf.Abs(v);
+        anim.SetBool("IsMoving", (moveDir != Vector3.zero ? true : false));
+        Debug.Log($"H: {absH}, V: {absV}");
+        anim.SetBool("Walk_Speed",
+            ((absH > 0 && absH <= 0.5f && absV <= 0.5f) || (absV > 0 && absV <= 0.5f && absH <= 0.5f)) ? true : false);
+        anim.SetBool("Run_Speed", (absH > 0.5f || absV > 0.5f ? true : false));
+        // 2. Set isGrounded
+        anim.SetBool("IsGrounded", charCont.isGrounded);
+        // 3. Set jump
+         if(jumpFrame) anim.SetTrigger("Jump");
+
     }
 }

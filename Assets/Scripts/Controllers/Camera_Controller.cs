@@ -41,7 +41,13 @@ public class Camera_Controller : MonoBehaviour
 
     private void Awake()
     {
-        if(curCamera == null) curCamera = Camera.main;
+        if (curCamera == null) curCamera = Camera.main;
+        Debug.Log(curCamera);
+    }
+
+    private void Start()
+    {
+        
         if (target == null) target = Player.Current.transform;
     }
 

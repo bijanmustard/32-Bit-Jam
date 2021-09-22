@@ -69,7 +69,7 @@ public abstract class Hitbox_Controller : MonoBehaviour
         ev.intParameter = intParam;
         //5. Add event
         clip.AddEvent(ev);
-        Debug.Log("Added event to " + clip.name + " at time " + time);
+        //Debug.Log("Added event to " + clip.name + " at time " + time);
     }
 
     /// <summary>
