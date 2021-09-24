@@ -13,13 +13,16 @@ public abstract class Fighter : Character
     protected Fighter_Action _action;
     public Fighter_Move move => (Fighter_Move)_move;
 
-    public float hp = 10;
-    public float maxHP = 100;
+    public float hp;
+    public float maxHP = 10;
+    public bool IsKO => isKO;
+    protected bool isKO;
 
     protected override void Awake()
     {
         base.Awake();
         _action = GetComponent<Fighter_Action>();
+        hp = maxHP;
     }
 
     public override void ToggleInput(bool tog)
@@ -29,7 +32,7 @@ public abstract class Fighter : Character
     }
 
     //UpdateHP updates HP by a given integer.
-    public void UpdateHP(int inc)
+    public virtual void UpdateHP(int inc)
     {
         hp = Mathf.Clamp(hp + inc, 0, maxHP);
         if (hp == 0) Die();
@@ -39,6 +42,11 @@ public abstract class Fighter : Character
     public virtual void Die()
     {
         Debug.Log($"{name} defeated!");
+        //Set anim bool
+        isKO = true;
+        anim.SetBool("IsKO", isKO);
+        _action.enabled = false;
+        _move.enabled = false;
     }
 
 

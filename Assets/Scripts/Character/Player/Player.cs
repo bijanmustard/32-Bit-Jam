@@ -14,6 +14,11 @@ public class Player : Fighter
 {
     private static Player current;
     public static Player Current => current;
+    public Player_Move pMove => (Player_Move)_move;
+    public Player_Action pAction => GetComponent<Player_Action>();
+
+    //Inventory
+    protected Inventory myInventory;
 
     protected override void Awake()
     {
@@ -23,13 +28,11 @@ public class Player : Fighter
         DontDestroyOnLoad(gameObject);
     }
 
-    public Player_Move pMove => (Player_Move)_move;
-    public Player_Action pAction => GetComponent<Player_Action>();
 
-    //Inventory
-    protected Inventory myInventory;
 
-    
-    
+
+
+
+
 }
 

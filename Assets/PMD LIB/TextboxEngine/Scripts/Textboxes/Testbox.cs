@@ -2,8 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TextboxMain_Test1 : Textbox_Main
+public class Testbox : Textbox_Main
 {
+
+    protected override void Awake()
+    {
+        base.Awake();
+        //Set this to main textbox
+        TextboxManager.SetMainTextbox(this);
+    }
+
+ 
+
     public override void OnSubtitleSet()
     {
         

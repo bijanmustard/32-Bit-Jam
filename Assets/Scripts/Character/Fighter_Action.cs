@@ -15,14 +15,15 @@ public abstract class Fighter_Action : MonoBehaviour
     Fighter fighter;
 
     public string? curAction;
-    public delegate void ActionMethod(Fighter f);
+    public delegate void ActionMethod(Fighter f, Hitbox hbx);
     public delegate void ActionInterrupt();
     public ActionInterrupt onInterrupt;
     public ActionMethod curMethod;
     protected Animator anim;
 
     Fighter_Move fMove;
-    protected bool isStun;
+    public bool isStun;
+    public bool canAttack = true;
     protected bool isAttack;
     float stunTimer = 0;
     float stunDur = 0;
@@ -92,6 +93,9 @@ public abstract class Fighter_Action : MonoBehaviour
         anim.SetBool("Stunned", isStun);
         // 3. Set isAttack
         anim.SetBool("IsAttack", isAttack);
+        //4. Set is Stun
+        anim.SetBool("Stunned", isStun);
+
 
     }
 
@@ -109,7 +113,8 @@ public abstract class Fighter_Action : MonoBehaviour
         fMove.kbForce = force;
         fMove.rotToDir = false;
         //2. Set anim state
-        anim.SetTrigger("Knockback");
+        anim.SetBool("IsKnockback", fMove.isKB);
+        anim.SetTrigger("Hit");
     }
 
     public void EndKnockback()
@@ -122,7 +127,7 @@ public abstract class Fighter_Action : MonoBehaviour
         knockback_timer = 0;
         fMove.isKB = false;
         fMove.rotToDir = true;
-        //anim.SetBool("IsKnockback", false);
+        anim.SetBool("IsKnockback", false);
        
         
     }
@@ -138,8 +143,7 @@ public abstract class Fighter_Action : MonoBehaviour
         stunDur = duration;
         stunTimer = 0;
         isStun = true;
-        //2. Set anim
-        isStun = true;
+        
     }
 
     public void EndStun()
@@ -156,6 +160,35 @@ public abstract class Fighter_Action : MonoBehaviour
         //2. SetAnim
         //anim.SetBool("Stunned", false);
         
+    }
+
+    //Hit is called when the fighter takes a hit.
+    public void Hit(int damage)
+    {
+        Debug.Log("isHit");
+        //1. Set vars
+        onInterrupt = EndHit;
+        curAction = "Hit";
+        fMove.canMove = false;
+        isStun = true;
+        stunDur = 0.5f;
+
+        //2. Take damage
+        fighter.UpdateHP(-damage);
+        //3. Trigger hit in anim
+        anim.SetTrigger("Hit");
+    }
+
+    public void EndHit()
+    {
+        //1. Rset vars
+        onInterrupt = null;
+        curAction = null;
+
+        fMove.canMove = true;
+        isStun = false;
+        stunTimer = 0;
+        stunDur = 0;
     }
 
     //Checks to see if animator is finished playing current animation.

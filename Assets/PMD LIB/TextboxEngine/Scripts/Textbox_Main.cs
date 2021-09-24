@@ -28,15 +28,6 @@ public abstract class Textbox_Main : Textbox
         // 1. Get refs
         options = transform.Find("Buttons").GetComponentsInChildren<SelectableOption>();
         audio = GetComponent<AudioSource>();
-
-        //2. Add self to manager's textbox list if not present
-        if (!TextboxManager.textboxes.ContainsKey(name) && !TextboxManager.textboxes.ContainsValue(this))
-        {
-            Debug.Log("Adding " + name + " to textbox manager");
-            TextboxManager.textboxes.Add(name, this);
-            //2a. If textbox main hasn't been set, set as textbox main
-            if (TextboxManager.textboxes.Count < 2) TextboxManager.SetMainTextbox(name);
-        }
     }
 
     private void OnDisable()
@@ -45,18 +36,10 @@ public abstract class Textbox_Main : Textbox
     }
 
 
-    protected virtual void Start()
-    {
-        //1. Disable self
-        gameObject.SetActive(false);
-    }
-
     protected virtual void OnDestroy()
     {
         //1. Remove self from textbox manager
-        TextboxManager.textboxes.Remove(name);
-        //2. If this was main textbox, set mainTextbox to something else
-
+        //TextboxManager.DestroyTextbox(this);
     }
 
     //Listner Funcs

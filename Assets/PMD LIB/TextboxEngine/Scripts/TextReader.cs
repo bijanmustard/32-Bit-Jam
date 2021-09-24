@@ -54,25 +54,20 @@ public class TextReader : MonoBehaviour
     protected static Action exitEvent;
 
 
-    protected void Awake()
-    {
+    /* ----------------------------------------
+    * Initialize Funcs
+    * ---------------------------------------- */
 
+    //SetTextbox sets the textbox for the reader to output to.
+    public void SetTextbox(Textbox tbx)
+    {
         //1. Set refs
-        myTextbox = GetComponent<Textbox>();
+        myTextbox = tbx;
         //1. If textbox is present, set texts to it's texts
         if (myTextbox != null) texts = myTextbox.texts;
         else Debug.Log("my textbox is gone!");
 
     }
-
-    protected void Start()
-    {
-
-    }
-
-    /* ----------------------------------------
-    * Initialize Funcs
-    * ---------------------------------------- */
 
     //SetDialogue initializes the textreader with a dialogue.
     public void SetDialogue(ref Dialogue cur, int startLine)
@@ -98,17 +93,11 @@ public class TextReader : MonoBehaviour
     }
 
 
-    //ClearTexts is called to clear all texts.
-    public void ClearTexts()
-    {
-        foreach (Text tx in texts) if (tx != null) tx.text = "";
-    }
+
 
     //ResetAll is called to clear all resettable vars.
     public void ResetAll()
     {
-        // 1. Clear text strings
-        ClearTexts();
         //2. Reset line pointer
         linePointer = 0;
         //3. Clear lines array
@@ -440,7 +429,7 @@ public class TextReader : MonoBehaviour
             else yield return null;
         }
         //9. Clear and close box.
-        if (myTextbox != null) myTextbox.ToggleTextbox(false);
+        if (myTextbox != null) myTextbox.ToggleTextbox(false, true);
         //10. Wait for textbox to close before calling OnTextboxExit
         yield return null;
         if (myTextbox != null)
@@ -477,7 +466,7 @@ public class TextReader : MonoBehaviour
         ResetAll();
 
         //4. Disable textbox
-        GetComponentInParent<Textbox>().gameObject.SetActive(false);
+        TextboxManager.ToggleTextbox(false, myTextbox.name);
 
     }
 }

@@ -14,8 +14,8 @@ Font:
   m_Texture: {fileID: 2800000, guid: 5cdd346acd78a894ea72c3b5b9ba7533, type: 3}
   m_AsciiStartOffset: 0
   m_Tracking: 1
-  m_CharacterSpacing: 0
-  m_CharacterPadding: 1
+  m_CharacterSpacing: 1
+  m_CharacterPadding: 0
   m_ConvertCase: -1
   m_CharacterRects:
   - serializedVersion: 2

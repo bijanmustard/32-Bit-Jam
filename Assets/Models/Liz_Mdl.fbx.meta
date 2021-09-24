@@ -1,14 +1,23 @@
 fileFormatVersion: 2
-guid: b7124f21cc8ac014098886ca6a8d3ed2
+guid: 8a0572c375809754ebf4f255addbdb79
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable:
   - first:
+      74: -6644259661523680075
+    second: Fighter|Crouch
+  - first:
+      74: 8571700268390734315
+    second: Fighter|Crouch_Kick
+  - first:
       74: -3320139045125337690
-    second: Fighter||Front_Kick
+    second: Fighter|Front_Kick
   - first:
       74: -56004488244914894
-    second: Fighter|Hit
+    second: Fighter|TakeHit
+  - first:
+      74: 6955043012007834782
+    second: Fighter|Idle
   - first:
       74: -3586563241166651223
     second: Fighter|Idle_Stance
@@ -17,13 +26,13 @@ ModelImporter:
     second: Fighter|Jump
   - first:
       74: 1815567226662230446
-    second: Armature|Knockback_L_model_base.blend
+    second: Fighter|Take_KB
   - first:
       74: 4549794163563546764
-    second: Fighter|Knockback_KO
+    second: Fighter|KB_KO
   - first:
       74: 4254739786566641365
-    second: Armature|KO_L_model_base.blend
+    second: Fighter|KO
   - first:
       74: -8051662931589252478
     second: Fighter|Punch_1
@@ -37,11 +46,8 @@ ModelImporter:
       74: 8881703748043604489
     second: Fighter|Walk
   - first:
-      74: 3672626149913671069
-    second: Fighter|Knockback
-  - first:
-      74: -6007650336431384809
-    second: Fighter|KO
+      74: -8446917492286498383
+    second: Fighter|Fall
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -71,7 +77,65 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Fighter||Front_Kick
+      name: Fighter|Crouch
+      takeName: Armature|Crouch_L_model_base.blend
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 1
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Fighter|Crouch_Kick
+      takeName: Armature|Crouch_Kick_L_model_base.blend
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 21
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Fighter|Front_Kick
       takeName: Armature|Front_Kick_L_model_base.blend
       internalID: 0
       firstFrame: 0
@@ -100,7 +164,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Fighter|Hit
+      name: Fighter|TakeHit
       takeName: Armature|Hit_L_model_base.blend
       internalID: 0
       firstFrame: 0
@@ -112,6 +176,35 @@ ModelImporter:
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Fighter|Idle
+      takeName: Armature|Idle_L_model_base.blend
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 30
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
@@ -187,7 +280,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Fighter|Knockback
+      name: Fighter|Take_KB
       takeName: Armature|Knockback_L_model_base.blend
       internalID: 0
       firstFrame: 0
@@ -216,7 +309,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Fighter|Knockback_KO
+      name: Fighter|KB_KO
       takeName: Armature|Knockback_KO_L_model_base.blend
       internalID: 0
       firstFrame: 0
@@ -373,6 +466,35 @@ ModelImporter:
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Fighter|Fall
+      takeName: Armature|Jump_L_model_base.blend
+      internalID: 0
+      firstFrame: 20
+      lastFrame: 40
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0

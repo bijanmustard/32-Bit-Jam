@@ -18,16 +18,20 @@ public static class SceneController
 
     public static bool useTransitions = true;
 
-
     static SceneController()
     {
         // 2. Set scene array
         scenes = new string[SceneManager.sceneCountInBuildSettings];
         for (int i = 0; i < scenes.Length; i++)
-        {        
+        {
             string path = SceneUtility.GetScenePathByBuildIndex(i);
             scenes[i] = System.IO.Path.GetFileNameWithoutExtension(path);
         }
+    }
+
+    //Initialize is called to Initialize the scene controller.
+    public static void Initialize() {
+        //Call class constructor by default
     }
 
 

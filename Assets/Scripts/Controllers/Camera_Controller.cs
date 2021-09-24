@@ -14,6 +14,7 @@ public class Camera_Controller : MonoBehaviour
 
     public static Camera curCamera;
     public static Transform target;
+    public static Transform lockOnTarget = null;
 
     public static CamMode mode = CamMode.Follow;
 
@@ -46,8 +47,7 @@ public class Camera_Controller : MonoBehaviour
     }
 
     private void Start()
-    {
-        
+    { 
         if (target == null) target = Player.Current.transform;
     }
 
@@ -99,5 +99,6 @@ public enum CamMode
 {
     Static,
     Follow,
+    LockOn,
     Free
 }

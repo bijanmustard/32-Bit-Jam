@@ -8,10 +8,15 @@ using UnityEngine;
  * Script for MainController, handles applicaiton-related funcs
  */
 
-public class MainController : MonoBehaviour
+public static class MainController
 {
     public static GameMode curMode;
-    
+
+    //Intialize is called to Initialize the main controller.
+    public static void Initialize()
+    {
+
+    }
 }
 
 public enum GameMode

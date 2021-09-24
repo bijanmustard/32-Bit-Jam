@@ -11,12 +11,20 @@ using UnityEngine.UI;
 
 public abstract class Textbox : MonoBehaviour
 {
+    //Ref to rect
+    CanvasScaler tbxCanvas;
+    RectTransform rect;
+    RectTransform parentRect;
+    RectAnchorMode anchorMode;
+
+    //Vector2 anchorPos => new Vector2(rect.anchoredP)
+
     //Ref to texts
     [SerializeField]
     public Text[] texts = new Text[3];
     [SerializeField]
     protected GameObject breakSymbol;
-    protected TextReader reader;
+    public TextReader reader;
 
     //Vars & Refs
     public Animation anim;
@@ -24,6 +32,11 @@ public abstract class Textbox : MonoBehaviour
     public AnimationClip outro;
     bool isClose;
     Coroutine animIE;
+
+    //Positioning and Height
+    [SerializeField]
+    public float height = 150, width = 300, xPos = 0, yPos = 0;
+
 
     protected virtual void Awake()
     {
@@ -33,50 +46,104 @@ public abstract class Textbox : MonoBehaviour
         if (texts[2] == null) try { texts[2] = transform.Find("Textbox_Body").GetComponent<Text>(); } catch { }
 
         //2. Set refs
+        rect = GetComponent<RectTransform>();
+        parentRect = transform.parent.GetComponent<RectTransform>();
+
         if (breakSymbol == null) try { breakSymbol = transform.Find("Textbox_BreakSymbol").gameObject; } catch { }
         reader = GetComponent<TextReader>();
         anim = GetComponent<Animation>();
         if (intro != null) anim.AddClip(intro, intro.name);
         if (outro != null) anim.AddClip(outro, outro.name);
+
+        tbxCanvas = transform.root.GetComponent<CanvasScaler>();
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        ToggleTextbox(true);
+        SetPositioning();
     }
-
 
     private void Update()
     {
-        //1. If outro, wait to finish before disabling textbox.
-        if(isClose && anim.isPlaying)
+
+        //1. Set rect anchor mode
+        if (rect.anchorMin == Vector2.zero && rect.anchorMax == Vector2.one) anchorMode = RectAnchorMode.Expand;
+        else if (rect.anchorMin.x == rect.anchorMax.x && rect.anchorMin.y == rect.anchorMax.y) anchorMode = RectAnchorMode.Point;
+        else anchorMode = RectAnchorMode.Custom;
+
+        //2. Set size and pos
+        SetPositioning();
+
+
+            
+    }
+
+    //SetPositioning
+    public void SetPositioning()
+    {
+        if (anchorMode == RectAnchorMode.Expand)
         {
-            isClose = false;
-            gameObject.SetActive(false);
+            rect.sizeDelta = new Vector2(Screen.width - width, Screen.height - height) * -1;
+            rect.anchoredPosition = new Vector2(xPos, yPos);
+        }
+        else if (anchorMode == RectAnchorMode.Point)
+        {
+            rect.sizeDelta = new Vector2(width, height);
+            Vector2 offset = new Vector2(tbxCanvas.referenceResolution.x * rect.anchorMin.x, tbxCanvas.referenceResolution.y * rect.anchorMin.y);
+            Debug.Log($"Offset: {offset}");
+            rect.anchoredPosition = new Vector2(xPos, yPos) + -offset;
+        }
+        else
+        {
+
         }
     }
 
-    //Toggle whether this textbox is visually enabled
-    public void ToggleTextbox(bool tog)
+    //ResetTextbox is called to reset the textbox components to their default state.
+    public void ResetTextbox(bool resetReader)
     {
-        // 1. Clear vars before read/close
-        //1c. Disable option buttons
-        if(GetType() == typeof(Textbox_Main)) ((Textbox_Main)this).ToggleButtons(false);
-        //1d. Reset textbox, text reader vals
-        reader.SetLine(0);
-        reader.ClearTexts();
-        //1e. Hide break img
-        if(breakSymbol != null) breakSymbol.SetActive(false);
-        
-        OpenCloseBox(tog);
+        //1. Disable option buttons
+        if (GetType() == typeof(Textbox_Main)) ((Textbox_Main)this).ToggleButtons(false);
+        //2. Hide break img
+        if (breakSymbol != null) breakSymbol.SetActive(false);
+        //3. Clear all text strings
+        ClearTexts();
+        //4. If resetReader, clear reader
+        if(resetReader) reader.ResetAll();
 
     }
 
-    //PlayAnim plays either the intro or outro anim. True = enter, false = exit.
-    public void OpenCloseBox(bool isIntro)
+    //ClearTexts is called to clear all texts.
+    public void ClearTexts()
     {
-        if (animIE != null) StopCoroutine(animIE);
-        animIE = StartCoroutine(OpenCloseIE(isIntro));
+        foreach (Text tx in texts) if (tx != null) tx.text = "";
+    }
+
+    //Toggle whether this textbox is visually enabled
+    public void ToggleTextbox(bool tog, bool useAnimations)
+    {
+        //1. Clear textbox values
+        ClearTexts();
+        //2. Set open/close
+        OpenCloseBox(tog, useAnimations);
+    }
+
+    //OpenCloseBox opens/closes the textbox, with an optional bool for skipping animation.
+    public virtual void OpenCloseBox(bool isOpen, bool useAnimation)
+    {
+        //1. If using animation...
+        if (useAnimation)
+        {
+            //1a. If animationIE is already running, stop and restart it.
+            if (animIE != null) StopCoroutine(animIE);
+            animIE = StartCoroutine(OpenCloseIE(isOpen));
+        }
+        //2. Else if not using animation...
+        else
+        {
+            //2a. If enabling, enable textbox
+            gameObject.SetActive(isOpen);
+        }
     }
 
     IEnumerator OpenCloseIE(bool tog)
@@ -87,7 +154,8 @@ public abstract class Textbox : MonoBehaviour
         while (anim.isPlaying) yield return null;
         //3. When done, finish IE
         animIE = null;
-        //if (!tog) gameObject.SetActive(false);
+        //4. If closing textbox, disable textbox gameObject
+        if (!tog) gameObject.SetActive(false);
 
     }
 
@@ -146,4 +214,10 @@ public abstract class Textbox : MonoBehaviour
 
     //IsAnimation returns whether or not the animator is playing.
     public bool IsAnimation() { return anim.isPlaying; }
+}
+
+public enum RectAnchorMode { 
+    Expand,
+    Point, 
+    Custom
 }

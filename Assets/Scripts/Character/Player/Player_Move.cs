@@ -21,13 +21,13 @@ public class Player_Move : Fighter_Move
 
     protected override Vector3 GetInputDir()
     {
-        if (!isKB && !isStun && !pAction.isCrouch)
+        if (!isKB && !pAction.isStun && !pAction.isCrouch)
         {
             h = Input.GetAxisRaw("Horizontal");
             v = Input.GetAxisRaw("Vertical");
             return new Vector3(h, 0, v);
         }
-        else if (isKB && !isStun) return kbDir;
+        else if (isKB && !pAction.isStun) return kbDir;
         else if (pAction.isCrouch) return Vector3.zero;
         else return Vector3.zero;
     }

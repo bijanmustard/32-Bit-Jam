@@ -13,47 +13,55 @@ public class Enemy_Action : Fighter_Action
 {
     Enemy_Move eMove;
 
-    float attackDist = 2f;
-    bool isAttack;
+    float attackDist = 1f;
     int attackCt = 0;
 
     float attackCooldown = 2f;
     float attackCooldown_timer;
 
+    Coroutine curAttackIE;
 
 
     protected override void Awake()
     {
         base.Awake();
         eMove = GetComponent<Enemy_Move>();
+        //1. Start in Wait
+        //Wait();
     }
 
     // Update is called once per frame
     protected override void MyUpdate()
     {
-        if (!eMove.isKB && !isStun)
+        if (!eMove.isKB && !isStun && canAttack)
         {
+            Debug.Log($"EnemyAction: Is {eMove.distToPlayer} < {attackDist}? {eMove.distToPlayer < attackDist}");
             if (eMove.distToPlayer <= attackDist)
             {
-                Debug.Log($"DIST: {eMove.distToPlayer}");
                 if (!isAttack)
                 {
-                    Attack();
-                }
-            }
+                    if (curAttackIE != null) StopCoroutine(curAttackIE);
+                    curAttackIE = StartCoroutine(AttackIE());
 
-            // 2. If is attacking, update timer
-            if (isAttack)
-            {
-                attackCooldown_timer += Time.deltaTime;
-                //2a. if timer reaches limit, stop attack seq
-                if (attackCooldown_timer >= attackCooldown)
-                {
-                    EndAttack();
                 }
             }
         }
 
+    }
+
+    IEnumerator AttackIE()
+    {
+        Attack();
+        yield return null;
+        while (!IsAnimationFinished()) yield return null;
+        EndAttack();
+        Wait();
+        while(attackCooldown_timer < attackCooldown)
+        {
+            attackCooldown_timer += Time.deltaTime;
+            yield return null;
+        }
+        EndWait();
     }
 
     //Attack is called to launch an attack.
@@ -93,12 +101,31 @@ public class Enemy_Action : Fighter_Action
         //5. Set anim state
         Debug.Log(name + " is attacking no more...");
         anim.SetInteger("Hit_Combo", attackCt);
+
+        hbxController.ToggleAllHitboxes(0);
+    }
+
+    public void Wait()
+    {
+        onInterrupt = EndWait;
+        curAction = "Wait";
+        isAttack = false;
+        eMove.canMove = false;
+        canAttack = false;
+    }
+
+    protected void EndWait()
+    {
+        onInterrupt = null;
+        curAction = null;
+        eMove.canMove = true;
+        canAttack = true;
     }
 
     // HIT FUNCS
-    public void AttackHit(Fighter f)
+    public void AttackHit(Fighter f, Hitbox hbx)
     {
-        f.GetComponent<Fighter_Action>().Knockback(3, 2, (f.gameObject.transform.position - transform.position).normalized);
-        f.UpdateHP(-2);
+        f.GetComponent<Fighter_Action>().Hit(2);
+        
     }
 }

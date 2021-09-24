@@ -18,10 +18,10 @@ public class Enemy_HBXController :Hitbox_Controller
 
         //2. Create animation events
         //2a. Punch_1
-        AddAnimationEvent("Armature|Punch_1", "ToggleAllHitboxes", 0, 0);
-        AddAnimationEvent("Armature|Punch_1", "ToggleLeftHand", 0.03f, 1);
+        AddAnimationEvent("Enemy|Punch_1", "ToggleAllHitboxes", 0, 0);
+        AddAnimationEvent("Enemy|Punch_1", "ToggleLeftHand", 0.03f, 1);
         //1b. Punch_2
-        AddAnimationEvent("Armature|Punch_2", "ToggleAllHitboxes", 0, 0);
+        AddAnimationEvent("Enemy|Punch_2", "ToggleAllHitboxes", 0, 0);
 
         //4. Set layermask
         mask = LayerMask.GetMask("Character/Player", "Character/Enemy", "Character/NPC");
@@ -30,7 +30,7 @@ public class Enemy_HBXController :Hitbox_Controller
 
     public override void SignalHit(Hitbox source, Fighter hit)
     {
-        act.curMethod.Invoke(hit);
+        act.curMethod.Invoke(hit,source);
     }
 
     //Toggles Left hand

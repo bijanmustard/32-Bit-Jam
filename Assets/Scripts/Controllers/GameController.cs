@@ -11,8 +11,12 @@ using UnityEngine.SceneManagement;
 
 public static class GameController
 {
-    private static bool isActive = false;
+    private static bool isActive = true;
     public static bool IsActive => isActive;
+
+    public static Game_Canvas gameCanvas;
+    static string fp_gameCanvas = "Canvas/Game_Canvas";
+
     public static float gameDeltaTime => Time.deltaTime * gameTimeScale;
     public static float gameTimeScale = 1;
 
@@ -24,12 +28,33 @@ public static class GameController
     //Static Initializer
     static GameController()
     {
-        //3. Add OnSceneLoaded to onSceneLoaded
-        SetIsActive(true);
+        Debug.Log("GameController initialized.");
+        InitializeCanvas(new Scene(), LoadSceneMode.Single);
+    }
+
+    //Toggle for isActive; Spawns/Despawns game-related objects (e.g. game canvas)
+    public static void SetIsActive(bool tog)
+    {
+        if (!isActive && tog == true)
+        {
+            Debug.Log("Enabling GameController.");
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.sceneLoaded += InitializeCanvas;
+            isActive = tog;
+        }
+        else if (isActive && tog == false)
+        {
+            Debug.Log("Disabling GameController.");
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.sceneLoaded -= InitializeCanvas;
+            isActive = tog;
+        }
+
     }
 
 
-    //Delegate for OnSceneLoaded
+
+    //Delegates for OnSceneLoaded
     public static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         
@@ -49,26 +74,21 @@ public static class GameController
                 Player.Current.transform.position = Vector3.zero;
             }
             else spawn.EnterAtSpawn(Player.Current);
-        }
-        
-    //Toggle for isActive
-    public static void SetIsActive(bool tog)
+     }
+
+    public static void InitializeCanvas(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"Setting active.. {isActive}, {tog}");
-        if (!isActive && tog == true)
+        //1. If game canvas is not present...
+        if(GameObject.FindObjectOfType<Game_Canvas>() == null)
         {
-            Debug.Log("Enabling gameController");
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            isActive = tog;
+            //2. Create game canvas
+            GameObject.Instantiate(Resources.Load<GameObject>(fp_gameCanvas));
         }
-        else if (isActive && tog == false)
-        {
-            Debug.Log("Disabling gameController");
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            isActive = tog;
-        }
-        
+        //3. Remove delegate
+        SceneManager.sceneLoaded -= InitializeCanvas;
     }
+        
+    
 
 
     

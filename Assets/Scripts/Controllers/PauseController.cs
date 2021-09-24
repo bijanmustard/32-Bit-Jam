@@ -19,11 +19,7 @@ public class PauseController : MonoBehaviour
     private static bool isPause = false;
     public static bool IsPause => isPause;
 
-    static PauseController()
-    {
-
-    }
-
+ 
     public static void PauseGame(bool tog)
     {
         isPause = tog;
