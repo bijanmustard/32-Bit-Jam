@@ -16,6 +16,9 @@ public class TextReader : MonoBehaviour
     Textbox myTextbox;
     public Dialogue curDialogue;
     public Text[] texts;
+    Text title => texts[0];
+    Text sub => texts[1];
+    Text body => texts[2];
 
     //static vars
     protected static char[] punctuation = { '.', '?', '!' };
@@ -53,26 +56,20 @@ public class TextReader : MonoBehaviour
 
     protected static Action exitEvent;
 
-
-    protected void Awake()
+    #region Initialize Funcs
+    /* ----------------------------------------
+    * Initialize Funcs
+    * ---------------------------------------- */
+    //SetTextbox sets the textbox for the reader to output to.
+    public void SetTextbox(Textbox tbx)
     {
-
         //1. Set refs
-        myTextbox = GetComponent<Textbox>();
+        myTextbox = tbx;
         //1. If textbox is present, set texts to it's texts
         if (myTextbox != null) texts = myTextbox.texts;
         else Debug.Log("my textbox is gone!");
 
     }
-
-    protected void Start()
-    {
-
-    }
-
-    /* ----------------------------------------
-    * Initialize Funcs
-    * ---------------------------------------- */
 
     //SetDialogue initializes the textreader with a dialogue.
     public void SetDialogue(ref Dialogue cur, int startLine)
@@ -84,7 +81,7 @@ public class TextReader : MonoBehaviour
         //2. Initialize text asset
         lines = cur.lines;
         //3. Set starting line
-        linePointer = Mathf.Clamp(startLine - 1, 0, lines.Length-1) ;
+        linePointer = Mathf.Clamp(startLine - 1, 0, lines.Length - 1);
     }
 
     //StartReader starts the reader IE.
@@ -97,18 +94,9 @@ public class TextReader : MonoBehaviour
         }
     }
 
-
-    //ClearTexts is called to clear all texts.
-    public void ClearTexts()
-    {
-        foreach (Text tx in texts) if (tx != null) tx.text = "";
-    }
-
     //ResetAll is called to clear all resettable vars.
     public void ResetAll()
     {
-        // 1. Clear text strings
-        ClearTexts();
         //2. Reset line pointer
         linePointer = 0;
         //3. Clear lines array
@@ -131,11 +119,12 @@ public class TextReader : MonoBehaviour
         pauseDur = def_pauseDur;
         sentenceBreak = def_sentenceBreak;
     }
+    #endregion
 
+    #region ReaderFuncs
     /* ----------------------------------------
-    * Reader Funcs
-    * ---------------------------------------- */
-
+     * Reader Funcs
+     * ---------------------------------------- */
     //CheckOptions checks if the input line is an options line. returns list of options.
     protected string[] CheckOptions(string line)
     {
@@ -176,7 +165,8 @@ public class TextReader : MonoBehaviour
                         //2a.a. Extract title from line
                         string myName = myWord;
                         myName = myName.Trim('>');
-                        myName = myName.Remove(0, 3);
+                        Debug.Log($"MyName: {myName}");
+                        myName = myName.Remove(0, 4);
                         //2a.b. Replace spaces
                         myName = myName.Replace("&'_'", " ");
                         //2a.c. Set new title text
@@ -252,12 +242,13 @@ public class TextReader : MonoBehaviour
         //If not meta tag, return false
         return false;
     }
+    #endregion
 
+    #region EventFuncs
 
     /* ----------------------------------------
      * Event Functions
-     * ---------------------------------------- */
-
+     * ---------------------------------------- */ 
 
     // SetLine is called by events to set the linePointer.
     public void SetLine(int line)
@@ -268,7 +259,7 @@ public class TextReader : MonoBehaviour
             goToLine = true;
             linePointer = Mathf.Clamp(line - 1, 0, lines.Length);
         }
-        
+
     }
 
     // SetExitEvent sets a delgate function to be called upon exiting the dialogue event.
@@ -279,7 +270,9 @@ public class TextReader : MonoBehaviour
 
     // EndOption is called in Dialogue to end the optionWait bool
     public void EndOptionWait() { waitForOption = false; }
+    #endregion
 
+    #region TextReader & Exit Func
     /* ----------------------------------------
      * Text Reader IE & Exit Func
      * ---------------------------------------- */
@@ -336,7 +329,7 @@ public class TextReader : MonoBehaviour
                         // 4f. Trigger flag for playing textbox blip
                         bool playSound = true;
                         // 4g. If word won't fit in textbox, clear textbox
-                        if (w.ToCharArray().Length + charCount > MAXCHARS)
+                        if (IsOverflow(body.text, w).y == 1)
                         {
                             texts[2].text = "";
                             charCount = 0;
@@ -440,7 +433,7 @@ public class TextReader : MonoBehaviour
             else yield return null;
         }
         //9. Clear and close box.
-        if (myTextbox != null) myTextbox.ToggleTextbox(false);
+        if (myTextbox != null) myTextbox.ToggleTextbox(false, true);
         //10. Wait for textbox to close before calling OnTextboxExit
         yield return null;
         if (myTextbox != null)
@@ -454,8 +447,6 @@ public class TextReader : MonoBehaviour
         OnTextboxExit();
     }
 
-
-
     //OnTextboxExit is called when the final break is made to close the textbox.
     protected void OnTextboxExit()
     {
@@ -465,7 +456,7 @@ public class TextReader : MonoBehaviour
         runIE = null;
         //2. if exit event exits, call exit event
         //if (exitEvent != null)
-        if(curDialogue != null)
+        if (curDialogue != null)
         {
 
             curDialogue.OnDialogueEnd();
@@ -477,8 +468,30 @@ public class TextReader : MonoBehaviour
         ResetAll();
 
         //4. Disable textbox
-        GetComponentInParent<Textbox>().gameObject.SetActive(false);
+        TextboxManager.ToggleTextbox(false, myTextbox.name);
 
     }
+    #endregion
+
+    #region TextGeneratorFunctions
+    //IsOverflowHorizontal returns whether or not a string would cause vertical overflow.
+    protected Vector2 IsOverflow(string text, string add)
+    {
+        //1. Get refs
+        RectTransform bodyRect = body.GetComponent<RectTransform>();
+        //2. Temporarily set additive string
+        body.text = text + " " + add;
+        //3. Get whether the new string exceeds the rect horizontal bounds
+        int h = (LayoutUtility.GetPreferredWidth(bodyRect) > bodyRect.rect.width ? 1 : 0);
+        int v = (LayoutUtility.GetPreferredHeight(bodyRect) > bodyRect.rect.height ? 1 : 0);
+        //4. Set string back to normal
+        body.text = text;
+        //5. Return result
+        return new Vector2(h, v);
+    }
+
+
+
+    #endregion
 }
 

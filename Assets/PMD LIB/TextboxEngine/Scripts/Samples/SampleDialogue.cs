@@ -12,7 +12,7 @@ public class SampleDialogue : Dialogue
     protected override void DEvent0(TextReader reader)
     {
         //Move line pointer to line 7
-        reader.SetLine(9);
+        reader.SetLine(7);
         Debug.Log("event");
         
     }
@@ -20,12 +20,12 @@ public class SampleDialogue : Dialogue
     public override void OnDialogueStart()
     {
         Debug.Log("Locking movement");
-        FindObjectOfType<Player>().ToggleInput(false);
+        if(Player.Current != null) Player.Current.ToggleInput(false);
     }
 
     public override void OnDialogueEnd()
     {
-        FindObjectOfType<Player>().ToggleInput(true);
+       if(Player.Current != null) Player.Current.ToggleInput(true);
     }
 
 

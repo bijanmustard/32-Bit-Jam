@@ -10,25 +10,12 @@ using UnityEngine;
 
 public class CamZone : MonoBehaviour
 {
-    public Vector3 minBounds, maxBounds;
 
-    public Vector3 eulerRotation;
-    public Vector3 pivotFwd;
-
-    public CamMode myCamMode;
-
-    [SerializeField]
-    Vector3 stickyPoint;
-    [SerializeField]
-    bool useSticky;
-    [SerializeField]
-    bool isLookAt;
-
+    public CameraSettings mySettings = new CameraSettings();
 
     //Gizmos vals
     Color unselectedColor = new Color(1,0,0,0.2f);
     Color selectedColor = new Color(0, 1, 0, 0.2f);
-
 
     private void OnDrawGizmos()
     {
@@ -56,8 +43,11 @@ public class CamZone : MonoBehaviour
         //Draw sticky point
         Gizmos.color = new Color(0, 0, 1, 0.5f);
         Gizmos.matrix = Matrix4x4.identity;
-        Gizmos.DrawSphere((Vector3)stickyPoint, 2f);
-         
+        if(mySettings.staticPoint != null) Gizmos.DrawSphere((Vector3)mySettings.staticPoint, 2f);
+    }
+
+    private void Start()
+    {
         
     }
 
@@ -67,21 +57,11 @@ public class CamZone : MonoBehaviour
         if(other.gameObject.layer == 11 && other.tag == "Player")
         {
             Debug.Log($"Player entered {name}");
-            // 2. Update Camera_Controller
-            // 2a. Set mode
-            Camera_Controller.mode = myCamMode;
-            //2b. Set sticky point
-            Camera_Controller.useSticky = useSticky;
-            if (useSticky) Camera_Controller.curSticky = stickyPoint;
-            else Camera_Controller.curSticky = null;
-            //2c. Set look at
-            Camera_Controller.isLookAt = isLookAt;
-            // 2d. Set rotation
-            Camera_Controller.camRotation = Quaternion.Euler(eulerRotation);
-            // 2d. Set pivot fwd
-            Camera_Controller.pivotFwd = pivotFwd.normalized;
-
-           
+            // 2. Update active worldCam
+            WorldCamera wCam = RenderController.worldCam.GetComponent<WorldCamera>();
+            if (mySettings.followPlayer) mySettings.target = Player.Current.transform;
+            wCam.myCamSettings = mySettings;
+            
         }
     }
 

@@ -29,11 +29,6 @@ public class Player_Action : Fighter_Action
         pMove = GetComponent<Player_Move>();
     }
 
-    //ComboTimer is called after attacking to start/reset the combo timer
-    protected void ComboTimer()
-    {
-        comboTimer = 0;
-    }
 
     //IE for hit combo
     IEnumerator AttackComboIE()
@@ -50,8 +45,8 @@ public class Player_Action : Fighter_Action
                 //2a. Set canChain bool
                 if (!canChain)
                 {
-                    Debug.Log($"Re-Enabling canChain at normalized {anim.GetCurrentAnimatorStateInfo(0).normalizedTime}." +
-                        $"Was animation finished? {IsAnimationFinished()}");
+                    //Debug.Log($"Re-Enabling canChain at normalized {anim.GetCurrentAnimatorStateInfo(0).normalizedTime}." +
+                    //    $"Was animation finished? {IsAnimationFinished()}");
                     canChain = true;
                 }
                 if (canChain)
@@ -62,7 +57,7 @@ public class Player_Action : Fighter_Action
                 //3. If combo timer ends, end attack
                 if (comboTimer >= comboSpan && IsAnimationFinished())
                 {
-                    Debug.Log($"Chain timer ended at time {comboTimer}");
+                    //Debug.Log($"Chain timer ended at time {comboTimer}");
                     EndAttack();
                     Debug.Log("Attack End");
                 }
@@ -86,6 +81,7 @@ public class Player_Action : Fighter_Action
     protected override void MyUpdate()
     {
 
+        DEBUG();
 
         //If not guarding or airborne..
         if (!isGuard && !pMove.isJumping && pMove.isGrounded)
@@ -142,6 +138,12 @@ public class Player_Action : Fighter_Action
         }
     }
 
+    public void DEBUG()
+    {
+        //1. Hit
+        if (Input.GetKeyDown(KeyCode.H)) Hit(2);
+    }
+
     protected override void UpdateAnimation()
     {
         base.UpdateAnimation();
@@ -152,7 +154,6 @@ public class Player_Action : Fighter_Action
     //Attack is called to launch an attack.
     public void Attack()
     {
-        curMethod = AttackHit;
         onInterrupt = EndAttack;
         //0. Set curAction
         curAction = "Attack";
@@ -163,6 +164,8 @@ public class Player_Action : Fighter_Action
         canChain = false;
         //3. Increase attackCombo
         hitCombo++;
+        if (hitCombo <= 2) curMethod = AttackHit;
+        else curMethod = FrontKickHit;
         //4. LockMovement
         pMove.canMove = false;
         //5. Play anim
@@ -175,8 +178,6 @@ public class Player_Action : Fighter_Action
         onInterrupt = EndAttack;
         curAction = "CrouchAttack";
         isAttack = true;
-
-
     }
 
     //EndAttack is called to end the attack sequence.
@@ -199,14 +200,23 @@ public class Player_Action : Fighter_Action
         isAttack = false;
         //7. Stop IE
         StopCoroutine(comboIE);
+        hbxController.ToggleAllHitboxes(0);
 
     }
 
     // HIT FUNCS
-    public void AttackHit(Fighter f)
+    public void AttackHit(Fighter f, Hitbox hbx)
     {
         Debug.Log("Attack landed!");
-        f.GetComponent<Fighter_Action>().Knockback(7, 5, (f.transform.position - transform.position).normalized);
-        f.UpdateHP(-2);
+        //f.GetComponent<Fighter_Action>().Knockback(7, 5, (f.transform.position - transform.position).normalized);
+        f.GetComponent<Fighter_Action>().Hit(1);
+    }
+
+    public void FrontKickHit(Fighter f, Hitbox hbx)
+    {
+        Debug.Log("Front kick!");
+        //1. Deal damage and knockback
+        f.GetComponent<Fighter_Action>().Hit(2);
+        f.GetComponent<Fighter_Action>().Knockback(3, 5, transform.forward);
     }
 }

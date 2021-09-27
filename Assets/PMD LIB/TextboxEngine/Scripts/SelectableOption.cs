@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -14,7 +15,7 @@ using UnityEngine.UI;
 public class SelectableOption : Selectable
 {
 
-    public Action onSelectedEvent;
+    public UnityEvent onSelectedEvent;
     bool isSelected;
 
     public override void OnSelect(BaseEventData eventData)

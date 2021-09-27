@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 /*
@@ -28,15 +29,6 @@ public abstract class Textbox_Main : Textbox
         // 1. Get refs
         options = transform.Find("Buttons").GetComponentsInChildren<SelectableOption>();
         audio = GetComponent<AudioSource>();
-
-        //2. Add self to manager's textbox list if not present
-        if (!TextboxManager.textboxes.ContainsKey(name) && !TextboxManager.textboxes.ContainsValue(this))
-        {
-            Debug.Log("Adding " + name + " to textbox manager");
-            TextboxManager.textboxes.Add(name, this);
-            //2a. If textbox main hasn't been set, set as textbox main
-            if (TextboxManager.textboxes.Count < 2) TextboxManager.SetMainTextbox(name);
-        }
     }
 
     private void OnDisable()
@@ -45,18 +37,10 @@ public abstract class Textbox_Main : Textbox
     }
 
 
-    protected virtual void Start()
-    {
-        //1. Disable self
-        gameObject.SetActive(false);
-    }
-
     protected virtual void OnDestroy()
     {
         //1. Remove self from textbox manager
-        TextboxManager.textboxes.Remove(name);
-        //2. If this was main textbox, set mainTextbox to something else
-
+        //TextboxManager.DestroyTextbox(this);
     }
 
     //Listner Funcs
@@ -98,7 +82,11 @@ public abstract class Textbox_Main : Textbox
                 char[] c = ops[i].ToCharArray();
                 //2. check event code and add listener
                 int ev = (int)Char.GetNumericValue(c[1]);
-                options[i].onSelectedEvent = delegate { reader.curDialogue.Event(ev, reader); };
+
+                UnityEvent unityEvent = new UnityEvent();
+                unityEvent.AddListener((() => { reader.curDialogue.Event(ev, reader);}));
+
+                options[i].onSelectedEvent = unityEvent;//delegate { reader.curDialogue.Event(ev, reader); };
 
                 //3. Get text from string
                 string opt = ops[i];
@@ -119,6 +107,10 @@ public abstract class Textbox_Main : Textbox
         Debug.Log("Options ready to display");
         
     }
+
+    [Serializable]
+    public class DialogueEvent : UnityEvent<int, TextReader>{}
+
 
 
 

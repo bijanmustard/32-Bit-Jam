@@ -1,12 +1,9 @@
-<&tHexagon&'_'Harry>
-JAMSHID <&nl> <&nl>
+<&t>JAMSHID
 Greetings traveller! I come to you with a business opportunity.
 <&w>
-JAMSHID <&nl> <&nl>
 Can I ask you a question?
 {<0Yes>;<1No>;<5Maybe?>}
 ============
-JAMSHID <&nl> <&nl>
 Do you like Pineapple pizza with cheese?
 <&s1>
 <&d1>

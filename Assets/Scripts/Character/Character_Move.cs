@@ -17,10 +17,11 @@ public abstract class Character_Move : MonoBehaviour
 
     protected float h, v;
     public float vertVel;
-    public Vector3 moveDir, moveVel;
+    public Vector3 inputDir, moveDir, moveVel;
 
-    public bool isVelOverride = false;
-    public Vector3 velOverride = Vector3.zero;
+    public bool isMoveDirOverride = false;
+    public Vector3 moveDirOverride = Vector3.zero;
+    public float overrideSpeed = 5f;
 
     protected float? speed = null;
     public float moveSpeed = 5f;
@@ -43,14 +44,14 @@ public abstract class Character_Move : MonoBehaviour
     public bool restrictX, restrictY, restrictZ;
     public bool rotToDir = true;
     [SerializeField]
-    protected bool useCameraTransform = false;
+    public bool useCameraTransform = false;
 
     //State bools
     public bool IsJump => jumpFrame;
-    public bool IsMoving => (h != 0 && v != 0);
-    public bool IsWalking => ((Mathf.Abs(h) > 0 && Mathf.Abs(h) <= 0.5f && Mathf.Abs(v) <= 0.5f)
-        || (Mathf.Abs(v) > 0 && Mathf.Abs(v) <= 0.5f && Mathf.Abs(h) <= 0.5f));
-    public bool IsRunning => (Mathf.Abs(h) > 0.5f || Mathf.Abs(v) > 0.5f);         
+    public bool IsMoving => (inputDir != Vector3.zero);
+    public bool IsWalking => ((Mathf.Abs(inputDir.x) > 0 && Mathf.Abs(inputDir.x) <= 0.5f && Mathf.Abs(inputDir.z) <= 0.5f)
+        || (Mathf.Abs(inputDir.z) > 0 && Mathf.Abs(inputDir.z) <= 0.5f && Mathf.Abs(inputDir.x) <= 0.5f));
+    public bool IsRunning => (Mathf.Abs(inputDir.x) > 0.5f || Mathf.Abs(inputDir.z) > 0.5f);         
 
     protected virtual void Awake()
     {
@@ -76,8 +77,8 @@ public abstract class Character_Move : MonoBehaviour
         //1. Set moveVel base
         moveVel = moveDir;
         //2. Set x, z speed
-        moveVel.x *= (float)speed; 
-        moveVel.z *= (float)speed; 
+        moveVel.x *= (float)(isMoveDirOverride ? overrideSpeed : speed); 
+        moveVel.z *= (float)(isMoveDirOverride ? overrideSpeed : speed); 
         //3. Set vert vel
         moveVel.y = vertVel;
         //4. Multiply by time.deltaTime
@@ -107,16 +108,18 @@ public abstract class Character_Move : MonoBehaviour
     
 
     // Update is called once per frame
-    protected void Update()
+    protected virtual void Update()
     {
         //0. If not freeze and gameScale > 0...
         if (!GetComponent<Character>().isFreeze  && !PauseController.IsPause && GameController.gameTimeScale > 0)
         {
 
- 
-
             //1. Get Input Direction
-            if (!lockMove) moveDir = (canMove ? GetInputDir() : Vector3.zero);
+            if (!lockMove)
+            {
+                inputDir = (canMove ? (isMoveDirOverride ? moveDirOverride : GetInputDir()) : Vector3.zero);
+            }
+            moveDir = inputDir;
 
             //1a. Constrain moveDir
             Restrict(ref moveDir);
@@ -131,8 +134,7 @@ public abstract class Character_Move : MonoBehaviour
             Gravity();
 
             //4. Set moveTo velocity
-            if (isVelOverride) moveVel = velOverride;
-            else SetMoveVel();
+             SetMoveVel();
 
             //5. If rotToDir enabled, rotate towards moveDir
             if (rotToDir && moveDir != Vector3.zero)
@@ -173,14 +175,13 @@ public abstract class Character_Move : MonoBehaviour
     /// <param name="dir"></param> <returns></returns>
     public static Vector3 CameraTransformDir(Vector3 dir)
     {
-        Debug.Log("Using camTransformDir");
         Vector3 camDir = Vector3.zero;
         //3a. Get forward based on y rotation of camera based as direction vector
-        Vector3 fwd = Quaternion.Euler(new Vector3(0, Camera_Controller.curCamera.transform.eulerAngles.y, 0)) * Vector3.forward;
+        Vector3 fwd = Quaternion.Euler(new Vector3(0, WorldCamera.Current.transform.eulerAngles.y, 0)) * Vector3.forward;
         //3b. forward relative to camera
         camDir += dir.z * fwd;
         //3c. horizontal relative to camera
-        camDir += dir.x * Camera_Controller.curCamera.transform.right;
+        camDir += dir.x * WorldCamera.Current.transform.right;
         return camDir;
     }
 
@@ -226,10 +227,9 @@ public abstract class Character_Move : MonoBehaviour
     protected virtual void UpdateAnimation()
     {
         // 1. Update move speed
-        var absH = Mathf.Abs(h);
-        var absV = Mathf.Abs(v);
-        anim.SetBool("IsMoving", (moveDir != Vector3.zero ? true : false));
-        Debug.Log($"H: {absH}, V: {absV}");
+        var absH = Mathf.Abs(inputDir.x);
+        var absV = Mathf.Abs(inputDir.z);
+        anim.SetBool("IsMoving", (inputDir != Vector3.zero ? true : false));
         anim.SetBool("Walk_Speed",
             ((absH > 0 && absH <= 0.5f && absV <= 0.5f) || (absV > 0 && absV <= 0.5f && absH <= 0.5f)) ? true : false);
         anim.SetBool("Run_Speed", (absH > 0.5f || absV > 0.5f ? true : false));

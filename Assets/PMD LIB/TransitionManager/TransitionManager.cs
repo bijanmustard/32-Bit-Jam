@@ -76,7 +76,7 @@ public class TransitionManager : MonoBehaviour
         TransitionIn();
         //5. Wait for transIn before unlocking player moveDir
         while (isTrans) yield return null;
-        Player.Current.move.LockDir(false);
+        if(Player.Current != null)Player.Current.move.LockDir(false);
 
     }
     
