@@ -11,12 +11,12 @@ using UnityEngine;
 public class Map_Exit : MonoBehaviour
 {
     //Ref to player
-    Player player;
+   
 
     public bool isSpawning = false;
     [SerializeField]
     protected Vector3 exitPt = Vector3.zero;
-    protected float exitSpeed = 2f;
+    protected float exitSpeed = 4f;
     protected float spawnTimer = 0;
 
     //Idx for thismap_exit
@@ -33,10 +33,6 @@ public class Map_Exit : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.TransformPoint(exitPt));
     }
 
-    void Awake()
-    {
-        player = FindObjectOfType<Player>();
-    }
 
     private void Update()
     {
@@ -46,17 +42,19 @@ public class Map_Exit : MonoBehaviour
           
             //1b. Get player vel to spawn point
             Vector3 worldExit = transform.TransformPoint(exitPt);
-            Vector3 moveTo = Vector3.MoveTowards(player.transform.position, worldExit, exitSpeed *  Time.deltaTime);
-            player.move.velOverride = (moveTo - player.transform.position);
-            player.move.velOverride.y = player.move.vertVel;
+            Vector3 moveTo = Vector3.MoveTowards(Player.Current.transform.position, worldExit, exitSpeed *  Time.deltaTime);
+            Player.Current.move.moveDirOverride = (moveTo - Player.Current.transform.position).normalized;
+            Player.Current.move.moveDirOverride.y = 0;
+            //Player.Current.move.velOverride.y = Player.Current.move.vertVel;
             //2. Once player is at posiiton, end spawn
-            if (Mathf.Abs(player.transform.position.x - worldExit.x) < 0.11f && 
-                Mathf.Abs(player.transform.position.z - worldExit.z) < 0.11f)
+            if (Mathf.Abs(Player.Current.transform.position.x - worldExit.x) < 0.11f && 
+                Mathf.Abs(Player.Current.transform.position.z - worldExit.z) < 0.11f)
             {
                 isSpawning = false;
-                player.move.isVelOverride = false;
-                player.move.velOverride = Vector3.zero;
-                player.move.LockDir(false);
+                Player.Current.move.isMoveDirOverride = false;
+                Player.Current.move.moveDirOverride = Vector3.zero;
+                Player.Current.move.LockDir(false);
+                Player.Current.move.useCameraTransform = true;
             }
         }
 
@@ -70,6 +68,7 @@ public class Map_Exit : MonoBehaviour
             //1a. If map has started...
             if (!isSpawning)
             {
+                Debug.Log($"Exiting map! isSpawning: {isSpawning}");
                 //2. Prepare for scene transition
                 //2a. Set refs to self vars in GameController
                 GameController.lastExitID = exitID;
@@ -77,7 +76,7 @@ public class Map_Exit : MonoBehaviour
                 //2b. Set goToID
                 GameController.goToID = goToIdx;
                 //2c. Lock player movement
-                player.move.LockDir(true);
+                Player.Current.move.LockDir(true);
                 //3. If scene exists, go to scene
                 if (Array.Exists(SceneController.scenes, s => s == goToMap))
                 {
@@ -100,11 +99,14 @@ public class Map_Exit : MonoBehaviour
     {
         //1. Start spawn instructions
         isSpawning = true;
+        Debug.Log("Entering at spawn"); 
         //1. Set player to exit position
         player.transform.position = transform.position;
         //2. Set moveDir to local fwd
         player.transform.forward = transform.forward;
-        player.move.isVelOverride = true;
+        player.move.isMoveDirOverride = true;
+        player.move.overrideSpeed = exitSpeed;
+        player.move.useCameraTransform = false;
 
         //3. move outwards for one second (see Update)
 

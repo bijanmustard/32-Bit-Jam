@@ -30,7 +30,7 @@ public class Game_Canvas : MonoBehaviour
         else
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
 
         //2. Set refs
@@ -40,6 +40,9 @@ public class Game_Canvas : MonoBehaviour
 
     private void Start()
     {
+        //0. Set render texture output
+        GetComponent<Canvas>().worldCamera = RenderController.UICam;
+
         //1. Link HP Bar to player
         playerHP.AssignHPBar(Player.Current);
         //2. Set HP bar visibility

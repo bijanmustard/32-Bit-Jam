@@ -12,7 +12,7 @@ public class SampleDialogue : Dialogue
     protected override void DEvent0(TextReader reader)
     {
         //Move line pointer to line 7
-        reader.SetLine(9);
+        reader.SetLine(7);
         Debug.Log("event");
         
     }

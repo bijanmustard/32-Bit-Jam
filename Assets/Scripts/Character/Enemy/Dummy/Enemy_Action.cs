@@ -35,7 +35,7 @@ public class Enemy_Action : Fighter_Action
     {
         if (!eMove.isKB && !isStun && canAttack)
         {
-            Debug.Log($"EnemyAction: Is {eMove.distToPlayer} < {attackDist}? {eMove.distToPlayer < attackDist}");
+            //Debug.Log($"EnemyAction: Is {eMove.distToPlayer} < {attackDist}? {eMove.distToPlayer < attackDist}");
             if (eMove.distToPlayer <= attackDist)
             {
                 if (!isAttack)

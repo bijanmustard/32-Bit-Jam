@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 /*
@@ -81,7 +82,11 @@ public abstract class Textbox_Main : Textbox
                 char[] c = ops[i].ToCharArray();
                 //2. check event code and add listener
                 int ev = (int)Char.GetNumericValue(c[1]);
-                options[i].onSelectedEvent = delegate { reader.curDialogue.Event(ev, reader); };
+
+                UnityEvent unityEvent = new UnityEvent();
+                unityEvent.AddListener((() => { reader.curDialogue.Event(ev, reader);}));
+
+                options[i].onSelectedEvent = unityEvent;//delegate { reader.curDialogue.Event(ev, reader); };
 
                 //3. Get text from string
                 string opt = ops[i];
@@ -102,6 +107,10 @@ public abstract class Textbox_Main : Textbox
         Debug.Log("Options ready to display");
         
     }
+
+    [Serializable]
+    public class DialogueEvent : UnityEvent<int, TextReader>{}
+
 
 
 

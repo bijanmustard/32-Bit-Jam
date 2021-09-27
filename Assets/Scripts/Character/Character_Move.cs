@@ -19,8 +19,9 @@ public abstract class Character_Move : MonoBehaviour
     public float vertVel;
     public Vector3 inputDir, moveDir, moveVel;
 
-    public bool isVelOverride = false;
-    public Vector3 velOverride = Vector3.zero;
+    public bool isMoveDirOverride = false;
+    public Vector3 moveDirOverride = Vector3.zero;
+    public float overrideSpeed = 5f;
 
     protected float? speed = null;
     public float moveSpeed = 5f;
@@ -43,7 +44,7 @@ public abstract class Character_Move : MonoBehaviour
     public bool restrictX, restrictY, restrictZ;
     public bool rotToDir = true;
     [SerializeField]
-    protected bool useCameraTransform = false;
+    public bool useCameraTransform = false;
 
     //State bools
     public bool IsJump => jumpFrame;
@@ -76,8 +77,8 @@ public abstract class Character_Move : MonoBehaviour
         //1. Set moveVel base
         moveVel = moveDir;
         //2. Set x, z speed
-        moveVel.x *= (float)speed; 
-        moveVel.z *= (float)speed; 
+        moveVel.x *= (float)(isMoveDirOverride ? overrideSpeed : speed); 
+        moveVel.z *= (float)(isMoveDirOverride ? overrideSpeed : speed); 
         //3. Set vert vel
         moveVel.y = vertVel;
         //4. Multiply by time.deltaTime
@@ -114,7 +115,10 @@ public abstract class Character_Move : MonoBehaviour
         {
 
             //1. Get Input Direction
-            if (!lockMove) inputDir = (canMove ? GetInputDir() : Vector3.zero);
+            if (!lockMove)
+            {
+                inputDir = (canMove ? (isMoveDirOverride ? moveDirOverride : GetInputDir()) : Vector3.zero);
+            }
             moveDir = inputDir;
 
             //1a. Constrain moveDir
@@ -130,8 +134,7 @@ public abstract class Character_Move : MonoBehaviour
             Gravity();
 
             //4. Set moveTo velocity
-            if (isVelOverride) moveVel = velOverride;
-            else SetMoveVel();
+             SetMoveVel();
 
             //5. If rotToDir enabled, rotate towards moveDir
             if (rotToDir && moveDir != Vector3.zero)
@@ -174,11 +177,11 @@ public abstract class Character_Move : MonoBehaviour
     {
         Vector3 camDir = Vector3.zero;
         //3a. Get forward based on y rotation of camera based as direction vector
-        Vector3 fwd = Quaternion.Euler(new Vector3(0, Camera_Controller.curCamera.transform.eulerAngles.y, 0)) * Vector3.forward;
+        Vector3 fwd = Quaternion.Euler(new Vector3(0, WorldCamera.Current.transform.eulerAngles.y, 0)) * Vector3.forward;
         //3b. forward relative to camera
         camDir += dir.z * fwd;
         //3c. horizontal relative to camera
-        camDir += dir.x * Camera_Controller.curCamera.transform.right;
+        camDir += dir.x * WorldCamera.Current.transform.right;
         return camDir;
     }
 

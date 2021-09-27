@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 /*
  * Code © Bijan Pourmand
  * Authored 9/15/21
@@ -11,6 +12,8 @@ using UnityEngine;
 public abstract class Interactable : MonoBehaviour
 {
     public bool canInteract = true;
+
+
     /// <summary>
     /// Function to be called when interacted with by player.
     /// </summary>

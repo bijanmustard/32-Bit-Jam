@@ -25,7 +25,7 @@ public class Player : Fighter
         base.Awake();
         if (current != null && current != this) Destroy(gameObject);
         else current = this;
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
     }
 
 
