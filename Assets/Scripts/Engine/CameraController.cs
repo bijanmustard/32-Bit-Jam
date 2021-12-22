@@ -28,10 +28,10 @@ public class CameraController : MonoBehaviour
     static Vector3 focusPoint;
     static float focusDist;
     static Vector3 focusOffset;
-    static Quaternion focusAngle;
+    public Quaternion focusAngle;
     static bool followLocalSpace;
 
-    
+    bool temp = true;
 
 
 
@@ -45,14 +45,14 @@ public class CameraController : MonoBehaviour
         //3. Disable all other cameras in scene
         foreach (Camera cam in FindObjectsOfType<Camera>())
         {
-            if (cam != mainCam) cam.gameObject.SetActive(false);
+            if (cam != main && cam.gameObject.tag != "RenderCam") cam.gameObject.SetActive(false);
         }
     }
 
     private void Start()
     {
         Transform tempTarget = Player.Current.transform;//GameObject.Find("Platforms").transform.Find("Cube");
-        SetFocus(tempTarget, 3, Quaternion.LookRotation(-Vector3.forward), new Vector3(0,1), false);
+        SetFocus(tempTarget, 7, Quaternion.AngleAxis(-30, Vector3.right), new Vector3(0,1), false);
     }
 
     private void LateUpdate()
@@ -68,7 +68,7 @@ public class CameraController : MonoBehaviour
                 Vector3 direction = (focusAngle * Vector3.forward) * focusDist;
                 Vector3 goToPos = focusPoint + direction;
                 //move to pos
-                transform.position = Vector3.Lerp(transform.position, goToPos, Time.deltaTime * 15f);
+                transform.position = Vector3.Lerp(transform.position, goToPos, 1);
                 //Look at target
                 Quaternion rotTo = Quaternion.LookRotation((focusPoint - transform.position));
                 transform.rotation = Quaternion.Slerp(transform.rotation, rotTo, 5f * Time.deltaTime);
@@ -85,7 +85,7 @@ public class CameraController : MonoBehaviour
         //2. Set transform
         focusTarget = focus;
         focusDist = distance;
-        focusAngle = angle;
+        controller.focusAngle = angle;
         focusOffset = offset;
         followLocalSpace = useLocalSpace;
         lookAtTarget = true;

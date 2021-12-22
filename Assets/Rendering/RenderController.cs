@@ -31,6 +31,9 @@ public static class RenderController
     static public RenderTexture rt_UICam;
     static public RenderTexture rt_textboxCam;
 
+    //Output resolution
+    public static Vector2Int outputResolution = new Vector2Int(320, 240);
+
     #endregion
 
     static RenderController()
@@ -53,11 +56,11 @@ public static class RenderController
        else UICam = Object.Instantiate(Resources.Load<GameObject>(fp_UICam)).GetComponent<Camera>();
         GameObject.DontDestroyOnLoad(UICam.gameObject);
 
-        //1c. TextboxCamera
-        if (GameObject.FindGameObjectWithTag("TextboxCamera") != null)
-            textboxCam = GameObject.FindGameObjectWithTag("TextboxCamera").GetComponent<Camera>();
-        else textboxCam = Object.Instantiate(Resources.Load<GameObject>(fp_textboxCam)).GetComponent<Camera>();
-        Object.DontDestroyOnLoad(textboxCam.gameObject);
+        ////1c. TextboxCamera
+        //if (GameObject.FindGameObjectWithTag("TextboxCamera") != null)
+        //    textboxCam = GameObject.FindGameObjectWithTag("TextboxCamera").GetComponent<Camera>();
+        //else textboxCam = Object.Instantiate(Resources.Load<GameObject>(fp_textboxCam)).GetComponent<Camera>();
+        //Object.DontDestroyOnLoad(textboxCam.gameObject);
 
         //2. Set canvas
         //2a. Find or spawn canvas reference
@@ -67,13 +70,22 @@ public static class RenderController
         
         //3. Set sceneloaded event
         SceneManager.sceneLoaded += OnSceneLoaded;
+        outputCam = worldCam;
+        canvas.worldCamera = outputCam;
+
+        //4. Update render textures to match output resolution
+        rt_worldCam.width = outputResolution.x;
+        rt_worldCam.height = outputResolution.y;
+        rt_UICam.width = outputResolution.x;
+        rt_UICam.height = outputResolution.y;
+        
 
     }
 
     static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         //1. Reset output to camera main
-        outputCam = Camera.main;
+        outputCam = worldCam;
         canvas.worldCamera = outputCam;
     }
 

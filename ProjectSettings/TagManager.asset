@@ -9,6 +9,7 @@ TagManager:
   - WorldCamera
   - UICamera
   - TextboxCamera
+  - RenderCam
   layers:
   - Default
   - TransparentFX

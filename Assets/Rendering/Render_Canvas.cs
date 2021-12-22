@@ -20,5 +20,8 @@ public class Render_Canvas : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
+        //2. Set output resolution
+        GetComponent<UnityEngine.UI.CanvasScaler>().referenceResolution = RenderController.outputResolution;
+        transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = RenderController.outputResolution;
     }
 }
