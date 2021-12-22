@@ -100,10 +100,3 @@ public class CameraSettings
 
 }
 
-public enum CamMode
-{
-    Static,
-    Follow,
-    LockOn,
-    Free
-}

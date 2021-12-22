@@ -124,7 +124,7 @@ public abstract class Character_Move : MonoBehaviour
             //1a. Constrain moveDir
             Restrict(ref moveDir);
             //1b. If transform by camera, transform moveDir by camera
-            if (useCameraTransform) moveDir = CameraTransformDir(moveDir);
+            if (useCameraTransform) moveDir = CameraController.CameraTransformDir(moveDir);
 
             //2. Check for jump
             jumpFrame = Jump();
@@ -152,10 +152,6 @@ public abstract class Character_Move : MonoBehaviour
         else Debug.Log($"{name} can't move!{!GetComponent<Character>().isFreeze}, {GameController.gameTimeScale > 0}, {!PauseController.IsPause} ");
     }
 
-
-
-
-
     /// <summary> Lerps a quaternion to a new forward direction. </summary>
     /// <param name="curRot"></param>
     /// <param name="newFwd"></param>
@@ -171,19 +167,7 @@ public abstract class Character_Move : MonoBehaviour
         //var norm = Quaternion.FromToRotation(transform.up, normal);
         //transform.rotation = norm * transform.rotation;
     }
-    /// <summary> Transforms a direction relative to the main camera, ignoring X-rotation.</summary>
-    /// <param name="dir"></param> <returns></returns>
-    public static Vector3 CameraTransformDir(Vector3 dir)
-    {
-        Vector3 camDir = Vector3.zero;
-        //3a. Get forward based on y rotation of camera based as direction vector
-        Vector3 fwd = Quaternion.Euler(new Vector3(0, WorldCamera.Current.transform.eulerAngles.y, 0)) * Vector3.forward;
-        //3b. forward relative to camera
-        camDir += dir.z * fwd;
-        //3c. horizontal relative to camera
-        camDir += dir.x * WorldCamera.Current.transform.right;
-        return camDir;
-    }
+
 
     /// <summary> Constrains an input vector by the Character_Move's axis constraints.</summary>
     /// <param name="input"></param>

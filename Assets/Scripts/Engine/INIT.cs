@@ -24,7 +24,7 @@ public class INIT : MonoBehaviour
             //1. Initialize MainController to init static controllers
             MainController.Initialize();
             //1a. RenderController
-            RenderController.Initialize();
+            //RenderController.Initialize();
             //1b. SceneController
             SceneController.Initialize();
             //1c. GameController

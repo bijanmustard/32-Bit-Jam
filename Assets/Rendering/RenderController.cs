@@ -35,7 +35,7 @@ public static class RenderController
 
     static RenderController()
     {
-        Initialize();
+        //Initialize();
     }
 
     public static void Initialize()
