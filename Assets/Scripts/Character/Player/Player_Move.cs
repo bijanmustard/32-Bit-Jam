@@ -35,9 +35,10 @@ public class Player_Move : Fighter_Move
 
     protected override bool Jump()
     {
-        //1. Check for jump input
-        if (Input.GetKeyDown(KeyCode.Space) && charCont.isGrounded && !jumpFrame)
-            return true;
-        else return false;
+        ////1. Check for jump input
+        //if (Input.GetKeyDown(KeyCode.Space) && charCont.isGrounded && !jumpFrame)
+        //    return true;
+        //else return false;
+        return false;
     }
 }

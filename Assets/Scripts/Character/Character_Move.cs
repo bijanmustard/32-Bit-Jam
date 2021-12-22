@@ -144,7 +144,7 @@ public abstract class Character_Move : MonoBehaviour
             if (charCont != null) charCont.Move(moveVel);
 
             //7. Update Animation
-            UpdateAnimation();
+            if(anim != null) UpdateAnimation();
 
             //5a. Reset jump frame
             jumpFrame = false;

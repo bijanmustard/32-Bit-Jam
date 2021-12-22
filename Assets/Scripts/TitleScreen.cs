@@ -32,8 +32,6 @@ public class TitleScreen : MonoBehaviour
         menus[1].SetActive(false);
         menus[2] = myCanvas.transform.Find("CreditsMenu").gameObject;
         menus[2].SetActive(false);
-        menus[3] = myCanvas.transform.Find("CharacterMenu").gameObject;
-        menus[3].SetActive(false);
     }
 
     // Start is called before the first frame update
@@ -52,14 +50,14 @@ public class TitleScreen : MonoBehaviour
 
     #region MenuItem Functions
     //Start Game loads the game.
-    public void StartGame(int player)
+    public void StartGame()
     {
         //1. Set mode to game
         MainController.curMode = GameMode.Game;
         //2. Enable GameController
         GameController.SetIsActive(true);
         //2a. Set player
-        GameController.SetCharacter(player);
+        //GameController.SetCharacter(player);
         //3. Load game scene
         SceneController.GoToScene("Sewers_1", true);
     }

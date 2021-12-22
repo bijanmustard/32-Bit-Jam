@@ -17,8 +17,8 @@ public static class GameController
     //Int representing player character
     //0 = Chas, 1 = Liz
     public static int playerCharacter = 1;
-    static string fp_players = "Prefabs/Players/";
-    static GameObject prefab_Chas, prefab_Liz;
+    static string fp_player = "Prefabs/Players/Player_Santa";
+    static GameObject prefab_Player;
 
     public static Game_Canvas gameCanvas;
     static string fp_gameCanvas = "Canvas/Game_Canvas";
@@ -36,8 +36,7 @@ public static class GameController
     {
         Debug.Log("GameController initializing.");
         //1. Load player prefabs
-        prefab_Chas = Resources.Load<GameObject>(fp_players + "Player_Chas");
-        prefab_Liz = Resources.Load<GameObject>(fp_players + "Player_Liz");
+        prefab_Player = Resources.Load<GameObject>(fp_player);
     }
 
     //Toggle for isActive; Spawns/Despawns game-related objects (e.g. game canvas)
@@ -65,10 +64,10 @@ public static class GameController
     }
 
     //SetCharacter sets the character.
-    public static void SetCharacter(int player)
-    {
-        playerCharacter = Mathf.Clamp(player, 0, 1);
-    }
+    //public static void SetCharacter(int player)
+    //{
+    //    playerCharacter = Mathf.Clamp(player, 0, 1);
+    //}
 
     //Delegates for OnSceneLoaded
     public static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -81,7 +80,7 @@ public static class GameController
                 //Instantiate GameCanvas
                 InitializeCanvas(new Scene(), LoadSceneMode.Single);
                 //Instantiate player
-                GameObject.Instantiate((playerCharacter == 0 ? prefab_Chas : prefab_Liz));
+                GameObject.Instantiate(prefab_Player);
                 Debug.Log("Player instantiated");
                 //1. Check for exit to spawn from.
                 var exits = GameObject.FindObjectsOfType<Map_Exit>();

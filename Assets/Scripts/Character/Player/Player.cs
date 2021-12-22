@@ -8,8 +8,8 @@ using UnityEngine;
  * Controller script for player.
  */
 
-[RequireComponent(typeof(Player_Move))]
-[RequireComponent(typeof(Player_Action))]
+//[RequireComponent(typeof(Player_Move))]
+//[RequireComponent(typeof(Player_Action))]
 public class Player : Fighter
 {
     private static Player current;

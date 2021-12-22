@@ -52,7 +52,7 @@ public class CameraController : MonoBehaviour
     private void Start()
     {
         Transform tempTarget = Player.Current.transform;//GameObject.Find("Platforms").transform.Find("Cube");
-        SetFocus(tempTarget, 7, Quaternion.AngleAxis(-30, Vector3.right), new Vector3(0,1), false);
+        SetFocus(tempTarget, 10, Quaternion.AngleAxis(-40, Vector3.right), new Vector3(0,1), false);
     }
 
     private void LateUpdate()
