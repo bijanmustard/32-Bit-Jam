@@ -117,7 +117,8 @@ public abstract class Character_Move : MonoBehaviour
             //1. Get Input Direction
             if (!lockMove)
             {
-                inputDir = (canMove ? (isMoveDirOverride ? moveDirOverride : GetInputDir()) : Vector3.zero);
+                //inputDir = (canMove ? (isMoveDirOverride ? moveDirOverride : GetInputDir()) : Vector3.zero);
+                inputDir = (isMoveDirOverride ? moveDirOverride : GetInputDir());
             }
             moveDir = inputDir;
 
@@ -141,7 +142,7 @@ public abstract class Character_Move : MonoBehaviour
                 transform.rotation = RotateTo(transform.rotation, new Vector3(moveVel.x, 0, moveVel.z), transform.up, rotateSpeed);
 
             //6. MovePosition
-            if (charCont != null) charCont.Move(moveVel);
+            if (charCont != null && canMove) charCont.Move(moveVel);
 
             //7. Update Animation
             if(anim != null) UpdateAnimation();

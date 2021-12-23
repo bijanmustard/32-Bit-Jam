@@ -27,7 +27,7 @@ public class CameraController : MonoBehaviour
     static Transform focusTarget;
     static Vector3 focusPoint;
     static float focusDist;
-    static Vector3 focusOffset;
+    public static Vector3 focusOffset;
     public Quaternion focusAngle;
     static bool followLocalSpace;
 
@@ -65,7 +65,7 @@ public class CameraController : MonoBehaviour
             {
                 //Get focus position
                 focusPoint = focusTarget.transform.position + focusOffset;
-                Vector3 direction = (focusAngle * Vector3.forward) * focusDist;
+                Vector3 direction = (focusAngle * Vector3.forward) * (focusDist + focusOffset.z);
                 Vector3 goToPos = focusPoint + direction;
                 //move to pos
                 transform.position = Vector3.Lerp(transform.position, goToPos, 1);
